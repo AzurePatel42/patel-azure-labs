@@ -1,111 +1,118 @@
 # Azure Portal Steps
 
-## Step 1
+## Step 1 - Open Storage Account
 
 Sign in to the Azure Portal.
 
----
-
-## Step 2
-
 Navigate to:
 
-Storage Accounts
-
-Select the Storage Account created in Lab 01.
-
----
-
-## Step 3
+**Storage Accounts**
 
 Open:
 
-Data Storage → Queues
+`staz104az01`
 
 ---
 
-## Step 4
+## Step 2 - Open Queues
+
+Navigate to:
+
+**Data Storage → Queues**
+
+---
+
+## Step 3 - Create Queue
 
 Select:
 
-+ Queue
+**+ Queue**
 
-Provide a queue name.
+Enter:
 
-Example:
-
-```
+```text
 documents
 ```
 
-Click **Create**.
+Create the Queue.
 
 ---
 
-## Step 5
+## Step 4 - Verify Queue
 
-Open the newly created queue.
+Open the `documents` Queue.
+
+Verify that the Queue exists and is available.
+
+---
+
+## Step 5 - Add Message
 
 Select:
 
-Add Message
+**Add Message**
 
-Enter a sample message.
+Enter:
 
-Example:
-
-```
-Process invoice.pdf
+```text
+Process sample document
 ```
 
-Click **OK**.
+Save the message.
 
 ---
 
-## Step 6
+## Step 6 - Verify Message
 
-Add additional messages.
+Verify that the message appears in the Queue.
 
-Example:
-
-```
-Generate embeddings
-
-Archive completed file
-```
+Record the message content and visible message state.
 
 ---
 
-## Step 7
+## Step 7 - Peek Message
 
-Select:
+Use the Queue message inspection/peek capability.
 
-Peek
-
-Verify the messages are visible without removing them.
+Verify that the message can be inspected without permanently removing it.
 
 ---
 
-## Step 8
+## Step 8 - Receive Message
 
-Select:
-
-Receive Message
+Receive the message for processing.
 
 Observe:
 
+- Message ID
 - Pop Receipt
 - Dequeue Count
-- Time Next Visible
+- Visibility timeout / next visible time
+
+The message becomes temporarily invisible while it is being processed.
 
 ---
 
-## Step 9
+## Step 9 - Delete Processed Message
 
-Delete the processed message.
+After processing is considered successful, delete the message.
+
+Verify that it is no longer available in the Queue.
+
+---
+
+## Step 10 - Final Validation
+
+Return to the Queue.
+
+Verify:
+
+- Queue still exists
+- Processed message has been removed
+- Queue is ready for additional processing messages
 
 ---
 
 ## Result
 
-Azure Queue Storage successfully configured and validated.
+Azure Queue Storage successfully created and validated using the existing Storage Account.
