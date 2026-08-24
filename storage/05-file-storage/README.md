@@ -1,10 +1,40 @@
+
 # Lab 05 - Azure File Storage
 
 ## Objective
 
-The objective of this lab is to create and manage an Azure File Share using an existing Azure Storage Account.
+Create, configure, validate, and document an Azure File Share using an existing Azure Storage Account.
 
-This lab introduces Azure Files as a managed cloud file system and demonstrates how file shares, directories, files, SMB, authentication, authorization, encryption, and networking work together.
+This lab demonstrates:
+
+- Azure File Shares
+- File share quotas
+- Directory creation
+- File upload and download
+- Azure CLI administration
+- Azure Portal administration
+- SMB concepts
+- Authentication and authorization
+- Encryption at rest and in transit
+- Azure Files security considerations
+- File Storage versus Blob Storage and Managed Disks
+
+---
+
+## Lab Environment
+
+| Setting | Value |
+|---|---|
+| Subscription | `patel-platform-service-template` |
+| Resource Group | `rg-az104-storage-01` |
+| Region | `eastus` |
+| Storage Account | `staz104az01` |
+| Storage Account Kind | `StorageV2` |
+| Storage Account SKU | `Standard_LRS` |
+| File Share | `lab-files` |
+| File Share Quota | `100 GiB` |
+| Directory | `documents` |
+| Test File | `sample.txt` |
 
 ---
 
@@ -12,141 +42,85 @@ This lab introduces Azure Files as a managed cloud file system and demonstrates 
 
 After completing this lab, you should be able to:
 
-- Explain Azure Files
-- Explain the purpose of Azure File Shares
+- Explain Azure Files and File Shares
 - Create an Azure File Share
-- Configure a file share quota
-- Create directories within a file share
-- Upload and manage files
-- Understand SMB
-- Understand SMB channel encryption
-- Explain authentication mechanisms
-- Explain authorization
-- Understand Kerberos-based authentication
-- Understand encryption at rest and encryption in transit
-- Review Azure Storage networking
-- Use Azure Portal to manage Azure Files
-- Use Azure CLI to manage Azure Files
-- Compare Azure Files with Blob Storage
-- Compare Azure Files with Managed Disks
+- Configure a File Share quota
+- Create directories inside an Azure File Share
+- Upload files
+- Download files
+- Validate Azure Files with Azure CLI
+- Understand SMB-based file access
+- Understand authentication versus authorization
+- Understand encryption at rest versus encryption in transit
+- Identify appropriate Azure Files use cases
+- Compare Azure Files with Blob Storage and Managed Disks
 
 ---
 
-## Azure Services Used
+## Azure Files Overview
 
-- Azure Resource Group
-- Azure Storage Account
-- Azure Files
-- Azure File Share
-
----
-
-## Prerequisites
-
-Before starting this lab:
-
-- Active Azure Subscription
-- Azure Portal access
-- Azure CLI installed
-- Azure CLI authentication configured
-- Existing Azure Storage Account
-- Basic understanding of Azure Storage
-
----
-
-# Architecture
-
-```text
-Azure Subscription
-│
-└── Resource Group
-    │
-    └── Storage Account
-        │
-        └── Azure File Share
-            │
-            ├── documents
-            │   └── test.txt
-            │
-            └── other directories/files
-
-Clients can access the file share through supported protocols and authentication mechanisms.
-
-Windows Client
-      │
-      │ SMB
-      ▼
-Azure File Share
-What is Azure Files?
-
-Azure Files is a fully managed cloud file system provided by Azure Storage.
-
-It provides shared file storage that can be accessed by applications, Azure Virtual Machines, Windows clients, Linux clients, and other supported environments.
-
-Azure Files is particularly useful when an application requires traditional file-system semantics rather than object-based storage.
-
-Azure File Share
-
-A file share is the logical file-system resource created inside an Azure Storage Account.
-
-Example:
-
-Storage Account
-│
-└── File Share
-    │
-    ├── documents
-    │   ├── invoice.pdf
-    │   └── report.docx
-    │
-    └── backups
-        └── backup.zip
-
-The file share provides the namespace in which directories and files are stored.
-
-SMB
-
-SMB stands for:
-
-Server Message Block
-
-SMB is a network file-sharing protocol commonly used by Windows systems.
-
-Azure Files supports SMB-based file sharing.
-
-Typical access pattern:
-
-Windows Client
-      │
-      │ SMB
-      ▼
-Azure Files
-
-SMB allows applications and users to interact with remote files and directories using familiar file-system operations.
-
-SMB Channel Encryption
-
-SMB channel encryption protects SMB traffic while it travels between the client and Azure Files.
+Azure Files provides managed file shares in Azure.
 
 Conceptually:
 
-Client
-  │
-  │ encrypted SMB traffic
-  ▼
-Azure Files
+```text
+Azure Storage Account
+        |
+        +-- Blob Containers
+        |
+        +-- File Shares
+        |
+        +-- Queues
+        |
+        +-- Tables
 
-SMB channel encryption is a protection mechanism for data in transit.
 
-It should not be confused with encryption at rest.
 
-Authentication Mechanisms
 
-Authentication answers:
+Azure Files provides hierarchical file and directory access.
 
-Who are you?
+Example:
 
-Depending on the Azure Files configuration, supported authentication mechanisms can include:
+lab-files
+    |
+    +-- documents
+    |     |
+    |     +-- sample.txt
+    |
+    +-- other directories
+
+This differs from Blob Storage, which uses containers and blobs rather than a traditional file-share hierarchy.
+
+Azure Files Architecture
+
+A simplified Azure Files access model is:
+
+Windows Client
+      |
+      | SMB
+      v
+Azure File Share
+      |
+      +-- Authentication
+      |
+      +-- Authorization
+      |
+      +-- Encryption
+
+Azure Files can also be accessed through:
+
+Azure Portal
+Azure CLI
+PowerShell
+SMB
+REST APIs
+Azure Storage Explorer
+Azure SDKs
+Authentication
+
+Azure Files supports multiple authentication approaches depending on configuration.
+
+Examples include:
 
 Storage account keys
 Microsoft Entra ID-based authentication
@@ -154,369 +128,353 @@ Active Directory Domain Services
 Microsoft Entra Domain Services
 Other supported identity-based configurations
 
-Authentication establishes the identity attempting to access the file share.
+Authentication answers:
 
-Authorization
+Who are you?
 
 Authorization answers:
 
 What are you allowed to access?
 
-Authentication and authorization are separate concepts.
+For this hands-on lab, Azure CLI file operations used a Storage Account key stored temporarily in a PowerShell variable.
 
-Authentication
-      ↓
-Who are you?
-      ↓
-Authorization
-      ↓
-What are you allowed to do?
+The key was never displayed in the documentation or committed to GitHub.
 
-An authenticated identity still requires appropriate permissions.
+SMB
 
-The principle of least privilege should be applied when assigning access.
-
-Kerberos
-
-Kerberos is a ticket-based network authentication protocol.
-
-It is used in supported identity-based SMB scenarios.
+Azure Files commonly uses SMB for Windows-based file access.
 
 Conceptually:
 
-User
- │
- │ authenticate
- ▼
-Identity / Domain
- │
- │ Kerberos ticket
- ▼
-Client
- │
- │ SMB authentication
- ▼
-Azure Files
+Windows Client
+      |
+      | SMB
+      v
+Azure File Share
 
-Kerberos allows authentication using tickets rather than repeatedly transmitting a user's password to the file service.
+SMB provides file and directory access over the network.
 
-Kerberos Ticket Encryption
-
-Kerberos tickets are cryptographically protected.
-
-This helps protect authentication information and prevents unauthorized modification of authentication exchanges.
-
-Important distinction:
-
-Kerberos
-    ↓
-Authentication
-
-SMB Encryption
-    ↓
-Protection of SMB network traffic
-
-Authorization
-    ↓
-Access permissions
-
-These mechanisms solve different security problems.
+SMB channel encryption helps protect SMB traffic while it is traveling between the client and Azure Files.
 
 Encryption
 
-Azure Storage provides encryption at rest for stored data.
-
-Azure Files can also use encryption in transit depending on the access protocol and configuration.
+Two important concepts must be distinguished.
 
 Encryption at Rest
 
-Protects stored data:
+Protects data stored in Azure.
 
-Azure Files
-    │
-    └── encrypted stored data
+Azure File Share
+      |
+      v
+Encrypted stored data
 Encryption in Transit
 
-Protects data while it travels across the network:
+Protects data while it travels across the network.
 
 Client
-    │
-    │ protected network traffic
-    ▼
+      |
+      | Encrypted communication
+      v
+Azure File Share
+
+For SMB access, SMB encryption is an important example of protecting data in transit.
+
+Security Model
+
+A useful AZ-104 mental model is:
+
 Azure Files
-File Share Quota
+    |
+    +-- Authentication
+    |       |
+    |       +-- Who are you?
+    |
+    +-- Authorization
+    |       |
+    |       +-- What can you access?
+    |
+    +-- Encryption
+            |
+            +-- How is the data protected?
 
-A file share can have a configured quota.
+Security considerations include:
 
-The quota limits the amount of storage available to the share.
+Use identity-based authentication where appropriate
+Follow least-privilege principles
+Protect Storage Account keys
+Use private networking when required
+Use encryption in transit
+Use encryption at rest
+Configure appropriate permissions
+Monitor access and activity
+Avoid unnecessary public exposure
+Hands-On Workflow
 
-Example:
+The completed lab followed this sequence:
 
-File Share
-Quota: 100 GiB
+Environment Inventory
+        |
+        v
+File Shares Menu
+        |
+        v
+Create File Share
+        |
+        v
+File Share Created
+        |
+        v
+Create documents Directory
+        |
+        v
+Upload sample.txt
+        |
+        v
+Download sample.txt
+        |
+        v
+Final CLI Validation
+File Share Configuration
 
-Current Usage: 25 GiB
+The lab File Share was configured as:
 
-Remaining Capacity Within Quota: 75 GiB
+Name:        lab-files
+Quota:       100 GiB
 
-The quota is associated with the file share.
+The File Share was created inside:
 
-Azure Files vs Blob Storage
+Storage Account:
+staz104az01
+Directory and File
 
-These services provide different storage models.
+The following directory was created:
 
-Azure Files	Blob Storage
-File storage	Object storage
-File shares	Containers
-Directories and files	Blobs
-SMB/NFS scenarios	HTTP/API-based object access
-Traditional file-system workloads	Unstructured object data
-Azure Files
-File Share
-│
-├── directory
-│   └── file
-└── file
+documents
+
+A local test file was created:
+
+sample.txt
+
+The file was uploaded to:
+
+documents/sample.txt
+
+The file was then downloaded from Azure Files and its contents were verified locally.
+
+Expected test content:
+
+Azure File Storage test document - AZ-104 Module 05
+Azure CLI Validation
+
+The Storage Account was validated with:
+
+az storage account show `
+  --name staz104az01 `
+  --resource-group rg-az104-storage-01 `
+  --query "{Name:name,Location:location,Kind:kind,SKU:sku.name,ProvisioningState:provisioningState}" `
+  --output table
+
+The File Share was validated with:
+
+az storage share-rm show `
+  --resource-group rg-az104-storage-01 `
+  --storage-account staz104az01 `
+  --name lab-files `
+  --output table
+
+The directory was validated with:
+
+az storage directory list `
+  --account-name staz104az01 `
+  --share-name lab-files `
+  --account-key $storageKey `
+  --output table
+
+The uploaded file was validated with:
+
+az storage file list `
+  --account-name staz104az01 `
+  --share-name lab-files `
+  --path documents `
+  --account-key $storageKey `
+  --output table
+
+The file was downloaded with:
+
+az storage file download `
+  --account-name staz104az01 `
+  --share-name lab-files `
+  --path "documents/sample.txt" `
+  --dest ".\validation\sample-downloaded.txt" `
+  --account-key $storageKey `
+  --output table
+Storage Account Key Handling
+
+For Azure Files CLI operations requiring a key:
+
+$resourceGroup = "rg-az104-storage-01"
+$storageAccount = "staz104az01"
+$fileShare = "lab-files"
+
+$storageKey = (
+    az storage account keys list `
+      --account-name $storageAccount `
+      --resource-group $resourceGroup `
+      --query "[0].value" `
+      --output tsv
+)
+
+Never display or commit the key.
+
+Do not place any of the following in GitHub:
+
+Storage Account keys
+Passwords
+Connection strings
+SAS tokens
+Access tokens
+Azure Files Use Cases
+
+Azure Files is useful for:
+
+Shared application configuration
+Shared documents
+File-based application workloads
+Legacy applications requiring file shares
+Lift-and-shift workloads
+Departmental file shares
+Shared application data
+Cloud-based file servers
+Azure Files vs Other Azure Storage
+Service	Primary Storage Model
+Blob Storage	Object storage
+Azure Files	Shared file storage
+Queue Storage	Message storage
+Table Storage	NoSQL entity storage
+Managed Disks	Block storage
+
+A key AZ-104 distinction:
+
 Blob Storage
-Container
-│
-├── image.jpg
-├── document.pdf
-└── data.json
-Azure Files vs Managed Disks
-
-Managed Disks provide block storage for Azure Virtual Machines.
-
-Azure Files provides shared file storage.
-
-Managed Disk
-VM
-│
-└── Managed Disk
-Azure Files
-Client A ──┐
-           │
-Client B ──┼── Azure File Share
-           │
-Client C ──┘
-
-Managed Disks are commonly attached to individual VM workloads.
-
-Azure Files is designed for shared file access.
-
-Azure Files vs Queue Storage
-
-Azure Files provides file storage.
-
-Azure Queue Storage provides asynchronous message storage.
+    -> Object storage
 
 Azure Files
-    ↓
-Shared files
+    -> Shared file storage
+
+Managed Disks
+    -> Block storage
 
 Queue Storage
-    ↓
-Messages between application components
-
-These services solve different architectural problems.
-
-Azure Files vs Table Storage
-
-Azure Files provides a hierarchical file system.
-
-Azure Table Storage provides NoSQL entity storage.
-
-Azure Files
-    ↓
-Files + directories
+    -> Message storage
 
 Table Storage
-    ↓
-Entities + PartitionKey + RowKey
-Security Considerations
+    -> NoSQL entity storage
+Azure Files vs Managed Disks
 
-Important Azure Files security considerations include:
+Managed Disks provide block storage primarily for Azure Virtual Machines.
 
-Use identity-based authentication where appropriate.
-Follow least-privilege principles.
-Protect Storage Account keys.
-Avoid exposing storage unnecessarily.
-Review Storage Account networking.
-Use private networking where required.
-Understand encryption at rest.
-Understand encryption in transit.
-Review SMB security.
-Monitor access and activity.
+Azure Files provides shared file storage that can be accessed by multiple clients depending on configuration.
 
-Never commit secrets to GitHub.
+Managed Disk
+    |
+    +-- VM storage
+    +-- OS disk
+    +-- Data disk
 
-Do not store the following in this repository:
+Azure Files
+    |
+    +-- File Share
+    +-- Directories
+    +-- Files
+    +-- SMB access
+Screenshot Evidence
 
-Storage Account Keys
-Passwords
-Connection Strings
-SAS Tokens
-Access Tokens
-Portal Lab
-
-The Azure Portal portion of this lab demonstrates:
-
-Opening the Storage Account
-Navigating to File Shares
-Creating a File Share
-Configuring the quota
-Opening the File Share
-Creating a directory
-Uploading a test file
-Reviewing configuration
-Reviewing networking
-Reviewing security concepts
-
-Detailed instructions are documented in:
-
-portal-steps.md
-CLI Lab
-
-The Azure CLI portion demonstrates:
-
-Listing Storage Accounts
-Viewing Storage Account configuration
-Retrieving Storage Account keys
-Creating a File Share
-Listing File Shares
-Viewing File Share configuration
-Creating directories
-Uploading files
-Listing files
-Downloading files
-Deleting files
-Reviewing networking
-Reviewing encryption
-
-Detailed commands are documented in:
-
-cli-commands.md
-Screenshots
-
-Screenshots captured during the lab are stored in:
+The complete hands-on evidence is stored in:
 
 screenshots/
 
-Expected screenshots include:
+Expected screenshots:
 
 screenshots/
+├── 00-file-storage-environment-inventory.png
 ├── 01-file-shares-menu.png
 ├── 02-create-file-share.png
 ├── 03-file-share-created.png
 ├── 04-directory-created.png
-└── 05-file-uploaded.png
+├── 05-file-uploaded.png
+├── 06-file-download-and-validation.png
+└── 07-final-file-share-validation.png
 
-The exact screenshots may vary depending on the Azure Portal interface encountered during the lab.
+The screenshots document:
 
+Initial Storage environment
+File Shares blade
+File Share configuration
+Successfully created File Share
+Created documents directory
+Uploaded sample.txt
+Download and local file validation
+Final Azure File Share validation
 Validation Checklist
 
-Before considering the lab complete:
+Before considering this lab complete:
 
+ Azure subscription verified
+ Resource Group verified
  Storage Account verified
- File Shares blade opened
+ File Shares blade reviewed
  File Share created
- File Share quota configured/reviewed
- File Share verified
+ File Share quota configured
  Directory created
  Test file uploaded
- File contents verified
- SMB understood
- SMB channel encryption understood
- Authentication mechanisms reviewed
- Authorization understood
- Kerberos reviewed
- Kerberos ticket encryption understood
- Encryption at rest reviewed
- Encryption in transit reviewed
- Networking reviewed
- Azure CLI commands documented
- Portal steps documented
- Notes documented
+ Uploaded file verified
+ Test file downloaded
+ Downloaded file contents verified
+ Azure CLI validation completed
+ SMB concepts reviewed
+ Authentication concepts reviewed
+ Authorization concepts reviewed
+ Encryption concepts reviewed
+ Security considerations reviewed
  Screenshots captured
- No secrets committed to Git
-Key AZ-104 Concepts
+ Documentation updated
+ No secrets committed to GitHub
+Key AZ-104 Takeaways
 
-The most important concepts from this lab are:
+The most important lessons from this lab are:
 
-Azure Storage
-│
-├── Blob Storage
-│     └── Object storage
-│
-├── Azure Files
-│     └── File storage
-│
-├── Queue Storage
-│     └── Message storage
-│
-├── Table Storage
-│     └── NoSQL entity storage
-│
-└── Managed Disks
-      └── Block storage
+Azure Files provides managed shared file storage.
+File Shares provide a hierarchical directory/file model.
+Azure Files commonly uses SMB for Windows-based access.
+Authentication establishes identity.
+Authorization controls access.
+Encryption protects data.
+Storage Account keys must be protected.
+Azure Files is different from Blob Storage.
+Azure Files is different from Managed Disks.
+Azure CLI can be used to validate the actual deployed resource.
+Portal configuration should always be verified against the deployed resource.
+Security and cost should be considered when designing Azure Storage.
+Outcome
 
-Security model:
+Successfully created, configured, validated, and documented an Azure File Share using the existing AZ-104 Storage learning environment.
 
-Authentication
-      ↓
-Who are you?
-
-Authorization
-      ↓
-What can you access?
-
-Encryption
-      ↓
-How is the data protected?
-
-For SMB:
-
-Client
-  │
-  │ SMB
-  ▼
-Azure Files
-  │
-  ├── Authentication
-  │
-  ├── Authorization
-  │
-  └── Encryption
-What I Learned
-
-Azure Files provides a managed file-system experience in Azure.
-
-The most important distinction from this lab is that Azure Storage contains several different storage services, each designed for a different workload.
-
-Blob Storage
-    → Object storage
+The lab provides practical experience with:
 
 Azure Files
-    → Shared file storage
-
-Managed Disks
-    → Block storage
-
-Queue Storage
-    → Message storage
-
-Table Storage
-    → NoSQL entity storage
-
-The security concepts are equally important:
-
+File Shares
+Directories
+File upload/download
+Azure Portal
+Azure CLI
+SMB
 Authentication
-    → Establish identity
-
 Authorization
-    → Control access
-
 Encryption
-    → Protect data
+Security
+Storage architecture
+Cost awareness
+Resource validation
 
-Understanding these distinctions is important for both the AZ-104 exam and real-world Azure architecture.
+This completes the AZ-104 Storage Module 05 - Azure File Storage hands-on lab.
