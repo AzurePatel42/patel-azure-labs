@@ -1,84 +1,121 @@
+
 # Azure Portal Steps
 
-## Step 1
+## Step 1 - Open Storage Account
 
-Sign in to the Azure Portal.
-
----
-
-## Step 2
+Open the Azure Portal.
 
 Navigate to:
 
-Storage Accounts
-
-Select the Storage Account created in Lab 01.
+**Storage accounts → staz104az01**
 
 ---
 
-## Step 3
+## Step 2 - Open Containers
 
-Open:
+Navigate to:
 
-Data Storage → Containers
-
----
-
-## Step 4
+**Data storage → Containers**
 
 Select:
 
-+ Container
-
-Provide:
-
-- Container Name
-- Public Access Level
-
-Create the container.
+**+ Container**
 
 ---
 
-## Step 5
+## Step 3 - Create Private Container
 
-Open the new container.
+Create:
+
+```text
+Name: documents
+Public access level: Private
+
+
+Step 4 - Verify Container
+
+Open the documents container.
+
+Verify that it is private and ready for Blob data.
+
+Screenshot:
+
+01-blob-container-created.png
+
+Step 5 - Upload Blob
+
+Open the documents container.
 
 Select:
 
 Upload
 
-Choose one or more files.
+Upload:
 
-Upload successfully.
+sample.txt
 
----
+Screenshot:
 
-## Step 6
+02-blob-uploaded.png
 
-Open an uploaded blob.
+Step 6 - Inspect Blob Properties and Metadata
 
-Review:
+Open:
 
-- Properties
-- URL
-- Content Type
-- Size
-- Last Modified
-
----
-
-## Step 7 (Optional)
-
-Generate a Shared Access Signature (SAS).
+documents → sample.txt
 
 Review:
 
-- Permissions
-- Expiration Time
-- Generated URL
+Size
+Content type
+Last modified
+ETag
+Encryption
+Access tier
+Custom metadata
 
----
+Screenshot:
 
-## Result
+03-blob-properties-metadata.png
 
-Azure Blob Storage container successfully configured and validated.
+Step 7 - Verify Access Tier
+
+Review the Blob access tier.
+
+The lab uses:
+
+Hot
+
+Screenshot:
+
+04-blob-access-tier-hot.png
+
+Step 8 - Download Blob
+
+Use the Blob interface to download sample.txt.
+
+Verify that the downloaded file matches the original.
+
+Screenshot:
+
+05-blob-download-validation.png
+
+Step 9 - Generate Read-Only SAS
+
+Generate a short-lived SAS for sample.txt.
+
+Configure:
+
+Read permission
+Short expiration
+User delegation authentication
+
+Do not expose or commit the generated SAS token.
+
+Screenshot:
+
+06-blob-sas-read-access.png
+
+Result
+
+Azure Blob Storage was successfully configured and validated using Azure Portal and Microsoft Entra-authenticated Azure CLI operations.
