@@ -1,118 +1,101 @@
 # Azure Managed Disks - Notes
 
-## What Is an Azure Managed Disk?
+## Key Concepts Learned
 
-Azure Managed Disks are block-level storage volumes managed by Azure.
-
-They are primarily used as persistent storage for Azure Virtual Machines.
-
-Azure manages the underlying storage infrastructure, reducing the administrative overhead associated with manually managing storage accounts and VHD files.
+- Azure Managed Disks provide persistent block-level storage for Azure Virtual Machines.
+- Managed Disks are managed by Azure, reducing storage infrastructure administration.
+- Managed Disks can exist independently of Virtual Machines.
+- A Virtual Machine normally uses an OS disk for its operating system.
+- Additional Managed Disks can be attached as data disks.
+- Disk performance should be selected according to workload requirements.
+- Different Managed Disk SKUs provide different performance and cost characteristics.
+- Standard SSD provides a balance between performance and cost for many general workloads.
+- Premium and Ultra disk options are intended for higher-performance workloads.
+- Azure Managed Disks support encryption at rest.
+- Platform-managed keys provide a simple encryption configuration.
+- Customer-managed keys provide greater control but require additional administration.
+- Managed Disk capacity, performance, and configuration affect cost.
+- Azure CLI can be used to inspect and manage Managed Disks.
+- Managed Disks should be deleted when no longer required to avoid unnecessary charges.
 
 ---
 
-## Managed Disk Architecture
+## OS Disk vs Data Disk
+
+### OS Disk
+
+The OS disk contains the operating system used by an Azure Virtual Machine.
+
+Examples:
+
+- Windows Server
+- Ubuntu
+- Red Hat Enterprise Linux
+
+The OS disk is required for a VM to boot.
+
+### Data Disk
+
+A data disk provides additional persistent storage for application and workload data.
+
+Common examples:
+
+- Application files
+- Database files
+- Logs
+- Business data
+- Processing data
+
+A common VM storage design is:
 
 ```text
 Azure Virtual Machine
         |
-        +----------------+
-        |                |
-        v                v
-     OS Disk         Data Disk
-        |                |
-        +--------+-------+
-                 |
-                 v
-          Azure Managed Disk
-                 |
-                 v
-       Azure-managed storage
-OS Disk vs Data Disk
-OS Disk
+        +---- OS Disk
+        |
+        +---- Data Disk
+        |
+        +---- Data Disk
 
-The OS disk contains the operating system for an Azure Virtual Machine.
 
-Examples include:
-
-Windows Server
-Ubuntu
-Red Hat Enterprise Linux
-Other supported operating systems
-Data Disk
-
-A data disk provides additional persistent storage for workloads running on a Virtual Machine.
-
-Common uses include:
-
-Application data
-Database files
-Logs
-Uploaded files
-Business data
 Managed Disk Types
 
-Azure provides different Managed Disk types for different workload requirements.
+Common Azure Managed Disk types include:
 
 Standard HDD
-
-Standard HDD provides economical storage for workloads that do not require high performance.
-
-Typical use cases:
-
-Backup
-Archive
-Development
-Low-I/O workloads
 Standard SSD
-
-Standard SSD provides better performance and lower latency than Standard HDD.
-
-Typical use cases:
-
-Web servers
-Application servers
-Development environments
-General-purpose workloads
 Premium SSD
-
-Premium SSD is designed for workloads requiring higher performance and lower latency.
-
-Typical use cases:
-
-Production applications
-Databases
-Business-critical workloads
 Premium SSD v2
-
-Premium SSD v2 provides more granular performance configuration for demanding workloads.
-
-It can be useful when applications require independently configurable performance characteristics.
-
 Ultra Disk
 
-Ultra Disk is designed for extremely demanding workloads requiring very high IOPS and low latency.
+Disk selection should consider:
 
-Typical use cases include:
-
-Mission-critical databases
-High-performance transactional workloads
-Disk Selection
-
-Disk selection should be based on workload requirements.
-
-Important factors include:
-
-Capacity
+Workload requirements
 IOPS
 Throughput
 Latency
+Capacity
 Availability
-Workload requirements
 Cost
 
-The highest-performance disk is not automatically the correct choice.
+The goal is to select the appropriate performance level rather than automatically choosing the most expensive option.
 
-The engineering objective is to meet application requirements while controlling cost.
+Lab Configuration
+
+The Managed Disk used in this lab is:
+
+Setting	Value
+Resource Group	rg-az104-storage-01
+Disk Name	disk-az104-managed-01
+Region	eastus
+Size	32 GiB
+SKU	Standard SSD
+Source Type	None
+Encryption	Platform-managed keys
+
+The disk is created as an empty Managed Disk.
+
+It is not attached to a Virtual Machine during this introductory lab.
 
 Encryption
 
@@ -122,57 +105,24 @@ Platform-Managed Keys
 
 Azure manages the encryption keys.
 
-Advantages:
+Benefits:
 
 Simple configuration
-Minimal administrative overhead
-Appropriate default for many workloads
+Low administrative overhead
+Suitable default for many workloads
 Customer-Managed Keys
 
 The organization manages the encryption keys.
 
-Advantages:
+Benefits can include:
 
 Greater control
-Support for certain compliance requirements
 Custom key lifecycle management
+Support for certain compliance requirements
 
-Customer-managed keys introduce additional operational responsibilities.
+Customer-managed keys require additional operational responsibility.
 
-Networking
-
-Managed Disks are integrated with Azure storage infrastructure.
-
-The Networking section provides configuration options for advanced disk access scenarios.
-
-For a basic VM disk deployment, the default configuration is generally sufficient.
-
-Advanced scenarios should be evaluated based on workload and security requirements.
-
-Snapshots
-
-An Azure Managed Disk can be copied using a snapshot.
-
-Snapshots can be useful for:
-
-Backup workflows
-Testing
-Creating disk copies
-Recovery scenarios
-
-A snapshot represents a point-in-time copy of a disk.
-
-Managed Disk and Virtual Machine Relationship
-
-An Azure Virtual Machine typically uses:
-
-1 OS Disk
-+
-0 or more Data Disks
-
-The number of supported data disks depends on the Virtual Machine size and workload requirements.
-
-VM capabilities and disk performance should be evaluated together.
+For this lab, platform-managed encryption is used.
 
 Managed Disk Lifecycle
 
@@ -198,68 +148,269 @@ Detach
   v
 Delete
 
-Managed Disks can exist independently of a Virtual Machine.
+A Managed Disk can exist independently of a VM.
 
-This allows a disk to be created first and attached to a VM later.
+This makes it possible to prepare storage before attaching it to a workload.
+
+Snapshots
+
+Managed Disks can be copied using snapshots.
+
+Snapshots can support:
+
+Backup workflows
+Testing
+Recovery scenarios
+Disk copying
+Point-in-time protection
+
+Snapshots should be managed according to organizational retention and security requirements.
 
 Cost Awareness
 
-Managed Disk costs can depend on:
+Managed Disk costs depend on factors such as:
 
 Disk type
 Provisioned capacity
-Performance configuration
+Performance requirements
+Additional configuration
 Redundancy
-Additional features
 
-Training resources should be deleted when they are no longer required.
+For AZ-104 labs:
 
-Always verify the resource name and Resource Group before deleting resources.
+Use only the required capacity.
+Avoid unnecessarily expensive disk tiers.
+Delete resources when the lab is complete.
+Verify the Resource Group before cleanup.
+Azure CLI Skills
 
-Security Considerations
+Important commands practiced in this lab include:
 
-For production environments:
-
-Use appropriate encryption.
-Apply least-privilege access through Azure RBAC.
-Protect snapshots and disk resources.
-Follow organizational tagging and governance standards.
-Monitor resource usage and cost.
-Use customer-managed keys when required by organizational or compliance requirements.
-Azure Managed Disks vs Unmanaged Disks
-
-Managed Disks are the recommended approach for most modern Azure VM deployments.
-
-With Managed Disks:
-
-Azure manages the underlying storage.
-Administrators do not need to manage storage accounts for VM disks.
-Disk management is simplified.
-Integration with Azure VM infrastructure is easier.
-Azure provides multiple disk performance options.
-
-Unmanaged disks required administrators to manage the storage account containing the VHD files.
-
-Azure CLI
-
-The core Azure CLI commands used to manage Managed Disks include:
-
-az disk create
 az disk list
 az disk show
+az disk create
 az disk delete
 
-These commands allow administrators to create, inspect, list, and remove Managed Disk resources.
+These commands allow administrators to:
 
-Lab Configuration
+Discover Managed Disks
+Inspect configuration
+Create disks
+Validate disk properties
+Delete unused disks
+Troubleshooting Notes
+Managed Disk Not Found
 
-The Managed Disk created during this lab used the following configuration:
+Check:
 
-Setting	Value
-Subscription	patel-platform-service-template
-Resource Group	rg-ppst-storage-lab
-Managed Disk Name	disk-managed-lab-01
-Source Type	None
-Encryption	Platform-managed keys
-Networking	Default configuration
-Tags	None
+Subscription
+Resource Group
+Disk name
+
+Example:
+
+az disk list `
+  --resource-group rg-az104-storage-01 `
+  --output table
+Provisioning State
+
+Check:
+
+az disk show `
+  --resource-group rg-az104-storage-01 `
+  --name disk-az104-managed-01 `
+  --query provisioningState `
+  --output tsv
+
+Expected successful state:
+
+Succeeded
+Disk Configuration
+
+Check:
+
+az disk show `
+  --resource-group rg-az104-storage-01 `
+  --name disk-az104-managed-01 `
+  --query "{Name:name,SizeGB:diskSizeGb,SKU:sku.name,Location:location,State:diskState}" `
+  --output table
+Challenges Encountered
+
+This lab focuses on understanding:
+
+Managed Disk creation
+Disk SKU selection
+Disk sizing
+Encryption configuration
+Portal-based resource creation
+Azure CLI validation
+Managed Disk lifecycle
+Cost awareness
+
+Any Azure Portal configuration differences should be documented during the actual lab execution.
+
+Lessons Learned
+
+Azure Managed Disks provide a standardized way to deliver persistent block storage for Virtual Machines.
+
+The important engineering decision is not simply creating a disk.
+
+The administrator must understand:
+
+Workload
+   |
+   v
+Storage Requirement
+   |
+   +---- Capacity
+   |
+   +---- Performance
+   |
+   +---- Availability
+   |
+   +---- Security
+   |
+   +---- Cost
+   |
+   v
+Managed Disk Selection
+
+This is an important part of Azure infrastructure design.
+
+AZ-104 Exam Thinking
+
+When evaluating Managed Disks, think about:
+
+Capacity
+
+How much storage does the workload require?
+
+Performance
+
+What IOPS, throughput, and latency are required?
+
+Cost
+
+Can the workload use a lower-cost disk tier?
+
+Availability
+
+Does the workload require additional resilience?
+
+Security
+
+What encryption and access controls are required?
+
+Lifecycle
+
+How will the disk be created, attached, backed up, detached, and deleted?
+
+PPST Integration
+
+Managed Disks are relevant to PPST when backend infrastructure requires VM-based persistent storage.
+
+For example:
+
+Azure Virtual Machine
+        |
+        +---- OS Managed Disk
+        |
+        +---- Data Managed Disk
+
+However, application documents should generally be handled by object storage rather than Managed Disks when the workload requires scalable object storage.
+
+The PPST document ingestion architecture uses:
+
+User Upload
+     |
+     v
+Azure Blob Storage
+     |
+     v
+Azure Queue Storage
+     |
+     v
+PPST Worker
+     |
+     v
+Document Processing
+     |
+     v
+OpenAI Embeddings
+     |
+     v
+PostgreSQL / pgvector
+
+This demonstrates an important architecture principle:
+
+Choose the Azure storage service based on the workload rather than using one storage technology for everything.
+
+Engineering Takeaway
+
+Managed Disks provide persistent block storage for Azure Virtual Machines.
+
+Blob Storage provides object storage.
+
+Queue Storage provides asynchronous messaging.
+
+These services solve different problems:
+
+Managed Disks
+     |
+     +---- Persistent block storage
+     |
+     v
+Virtual Machines
+
+
+Blob Storage
+     |
+     +---- Object storage
+     |
+     v
+Documents / Files / Objects
+
+
+Queue Storage
+     |
+     +---- Asynchronous messaging
+     |
+     v
+Background Workers
+
+Understanding these differences is important for both AZ-104 and real-world cloud architecture.
+
+Final Validation
+
+Before marking this lab complete, confirm:
+
+ Resource Group verified
+ Managed Disk created
+ Disk name verified
+ Region verified
+ Size verified
+ SKU verified
+ Encryption reviewed
+ Provisioning state verified
+ Disk state verified
+ Azure CLI validation completed
+ Screenshots captured
+ Documentation updated
+ Git changes reviewed
+ Git commit created
+ Changes pushed to GitHub
+Outcome
+
+Successfully understand, create, validate, and document an Azure Managed Disk.
+
+This lab provides practical AZ-104 experience with:
+
+Persistent block storage
+Managed Disk configuration
+Disk performance tiers
+Encryption
+Azure Portal
+Azure CLI
+Disk lifecycle management
+Cost awareness
+Virtual Machine storage architecture

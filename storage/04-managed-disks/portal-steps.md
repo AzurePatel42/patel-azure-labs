@@ -4,23 +4,33 @@
 
 Create and validate an Azure Managed Disk using the Azure Portal.
 
----
+The lab uses the existing AZ-104 Storage Resource Group:
 
-## Step 1 - Open Azure Portal
+```text
+rg-az104-storage-01
+
+
+Step 1 - Verify the Azure Environment
 
 Sign in to the Azure Portal.
 
-Navigate to:
+Open:
 
-```text
 Resource Groups
 
-Open the lab Resource Group:
+Locate:
 
-rg-ppst-storage-lab
-Step 2 - Start Managed Disk Creation
+rg-az104-storage-01
 
-From the Azure Portal, select:
+Confirm the Resource Group exists before creating the Managed Disk.
+
+Screenshot
+screenshots/00-managed-disk-environment-inventory.png
+Step 2 - Open Managed Disks
+
+From the Azure Portal:
+
+Select:
 
 Create a resource
 
@@ -36,21 +46,44 @@ Start the Managed Disk creation workflow.
 
 Step 3 - Configure Basic Settings
 
-Configure the basic Managed Disk settings.
+Configure the Managed Disk.
+
+Use:
 
 Setting	Value
-Subscription	patel-platform-service-template
-Resource Group	rg-ppst-storage-lab
-Managed Disk Name	disk-managed-lab-01
-Region	Lab region
+Subscription	Current AZ-104 subscription
+Resource Group	rg-az104-storage-01
+Region	eastus
+Disk Name	disk-az104-managed-01
 Source Type	None
 
-For this lab, the Managed Disk is created as an empty disk.
+The disk will be created as an empty Managed Disk.
 
+Step 4 - Configure Disk Size and SKU
+
+Configure the disk capacity and performance tier.
+
+Use:
+
+Size: 32 GiB
+SKU: Standard SSD
+
+Review the available disk SKUs and understand that different tiers provide different performance and cost characteristics.
+
+Common Managed Disk options include:
+
+Standard HDD
+Standard SSD
+Premium SSD
+Premium SSD v2
+Ultra Disk
+
+For this introductory AZ-104 lab, use:
+
+Standard SSD
 Screenshot
-screenshots/01-resource-group.png
 screenshots/02-create-managed-disk.png
-Step 4 - Review Encryption
+Step 5 - Review Encryption
 
 Open the:
 
@@ -62,9 +95,14 @@ Review the available encryption configuration.
 
 For this introductory lab, use the default platform-managed encryption configuration.
 
-Azure Managed Disks support encryption at rest using platform-managed keys and customer-managed keys.
+Azure Managed Disks support encryption at rest using:
 
-Step 5 - Review Networking
+Platform-managed keys
+Customer-managed keys
+
+Platform-managed keys provide a simple default configuration.
+
+Step 6 - Review Networking
 
 Open the:
 
@@ -74,35 +112,38 @@ section.
 
 Review the available networking configuration.
 
-For this introductory lab, retain the default configuration.
+For this introductory lab:
+
+Review the available options
+Retain the appropriate default configuration
+Do not enable advanced options unless required
 
 Advanced disk access and security scenarios can be explored in later labs.
 
-Step 6 - Review Advanced Settings
+Step 7 - Review Advanced Settings
 
-Open the:
+Open:
 
 Advanced
 
-section.
-
 Review the available options.
 
-For this introductory lab, retain the default configuration.
+For this introductory lab, retain the appropriate default configuration.
 
-Advanced Managed Disk capabilities may include features such as:
+Advanced Managed Disk capabilities may include:
 
 Shared disks
 Host caching
-Disk performance options
-Other workload-specific configurations
-Step 7 - Review Tags
+Performance configuration
+Workload-specific options
 
-Open the:
+Do not enable additional features unless required by the lab.
+
+Step 8 - Review Tags
+
+Open:
 
 Tags
-
-section.
 
 No tags are required for this introductory lab.
 
@@ -114,7 +155,7 @@ Environment
 Application
 Department
 Governance
-Step 8 - Review Configuration
+Step 9 - Review Configuration
 
 Select:
 
@@ -130,45 +171,100 @@ Subscription
 Resource Group
 Region
 Disk name
-Disk configuration
+Disk size
+Disk SKU
+Source type
 Encryption
 Networking
 Advanced settings
 Tags
 Screenshot
 screenshots/03-review-and-create.png
-Step 9 - Create the Managed Disk
+Step 10 - Create the Managed Disk
 
-After validation succeeds, select:
+After validation succeeds:
+
+Select:
 
 Create
 
 Wait for the deployment to complete.
 
-Azure creates the Managed Disk in the selected Resource Group.
+Azure creates the Managed Disk in:
 
-Step 10 - Validate the Deployment
+rg-az104-storage-01
+Step 11 - Validate the Managed Disk
 
-After deployment completes, select:
+After deployment completes:
+
+Select:
 
 Go to resource
 
 Review the Managed Disk Overview page.
 
-Confirm that:
+Confirm:
 
-The Managed Disk exists.
-The Resource Group is correct.
-The disk provisioning state is successful.
-The disk configuration is available.
-The resource is accessible from the Azure Portal.
+Managed Disk exists
+Resource Group is correct
+Region is correct
+Disk size is correct
+Disk SKU is correct
+Provisioning state is successful
+Disk configuration is available
+Resource is accessible from the Azure Portal
 Screenshot
 screenshots/04-managed-disk-created.png
+Step 12 - Validate Managed Disk Properties
+
+Use Azure CLI to inspect the deployed resource.
+
+Run:
+
+az disk show `
+  --resource-group rg-az104-storage-01 `
+  --name disk-az104-managed-01 `
+  --query "{Name:name,SizeGB:diskSizeGb,SKU:sku.name,Location:location,ProvisioningState:provisioningState,DiskState:diskState}" `
+  --output table
+
+Confirm that the returned values match the lab configuration.
+
+Screenshot
+screenshots/05-managed-disk-properties.png
+Step 13 - Final Validation
+
+Perform final validation using:
+
+az disk list `
+  --resource-group rg-az104-storage-01 `
+  --output table
+
+Then:
+
+az disk show `
+  --resource-group rg-az104-storage-01 `
+  --name disk-az104-managed-01 `
+  --output table
+
+Confirm:
+
+Resource Group
+Managed Disk Name
+Location
+Size
+SKU
+Provisioning State
+Disk State
+Screenshot
+screenshots/06-managed-disk-final-validation.png
 Validation Checklist
  Azure Portal opened
- Lab Resource Group selected
- Managed Disk creation started
- Managed Disk name configured
+ Existing Resource Group verified
+ Managed Disk creation workflow opened
+ Disk name configured
+ Region verified
+ Disk size configured
+ Disk SKU configured
  Source type reviewed
  Encryption reviewed
  Networking reviewed
@@ -176,7 +272,9 @@ Validation Checklist
  Tags reviewed
  Configuration validated
  Managed Disk created
- Deployment verified
+ Managed Disk properties verified
+ CLI validation completed
+ Final validation completed
 Cleanup
 
 If the Managed Disk is no longer required, delete it to avoid unnecessary Azure charges.
@@ -187,13 +285,21 @@ Delete
 
 Confirm the deletion.
 
-Alternatively, use the Azure CLI commands documented in:
+Alternatively, use Azure CLI:
 
-cli-commands.md
+az disk delete `
+  --resource-group rg-az104-storage-01 `
+  --name disk-az104-managed-01 `
+  --yes
+
+Verify the Resource Group and disk name before deleting the resource.
+
 Important Notes
 
 Azure Portal interfaces and available configuration options may change over time.
 
-This documentation reflects the Portal workflow observed during the execution of this lab.
+This documentation records the workflow used during this AZ-104 hands-on lab.
 
-The Managed Disk created in this lab is an independent storage resource. It can later be attached to an Azure Virtual Machine as a data disk.
+The Managed Disk created in this lab is an independent storage resource.
+
+It can later be attached to an Azure Virtual Machine as a data disk.
