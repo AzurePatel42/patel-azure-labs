@@ -1,371 +1,456 @@
-# Azure Storage Monitoring
+# Lab 08 - Azure Storage Monitoring
 
-## Overview
+## Objective
 
-This lab demonstrates how to implement production-oriented monitoring for an Azure Storage Account using Azure Monitor, Diagnostic Settings, Log Analytics, KQL, metrics, resource logs, alerts, and Action Groups.
+Create, configure, and validate monitoring for an Azure Storage Account using Azure Monitor, Diagnostic Settings, Storage metrics, and metric alerts.
 
-The lab uses the following Azure resources:
+This lab uses the existing AZ-104 storage environment and focuses on evidence-based monitoring rather than assumptions.
 
-- Storage Account: `stppstlab001`
-- Resource Group: `rg-ppst-storage-lab`
-- Log Analytics Workspace: `law-ppst-storage-lab`
-- Subscription: `patel-platform-service-template`
+The lab demonstrates:
 
----
-
-## Objectives
-
-- Create and configure an Azure Log Analytics Workspace.
-- Configure Storage Account diagnostic settings.
-- Send Storage metrics to Log Analytics.
-- Validate telemetry using KQL.
-- Configure Blob service resource logs.
-- Capture Storage Read, Write, and Delete operations.
-- Query Blob resource logs using KQL.
-- Understand the difference between metrics and logs.
-- Configure Azure Monitor alerts and Action Groups.
-- Troubleshoot telemetry ingestion using evidence.
+- Azure Storage metrics
+- Diagnostic Settings
+- Azure Monitor
+- Metric alerts
+- Capacity monitoring
+- Transaction monitoring
+- Metric time grains
+- Monitoring validation
+- Evidence-based troubleshooting
+- Metrics vs. resource logs
 
 ---
 
-## Architecture
+## Lab Environment
+
+| Resource | Value |
+|---|---|
+| Subscription | `patel-platform-service-template` |
+| Resource Group | `rg-az104-storage-01` |
+| Storage Account | `staz104az01` |
+| Storage Account Type | `StorageV2` |
+| SKU | `Standard_LRS` |
+| Region | `eastus` |
+| Log Analytics Workspace | `lawaz104mon01` |
+| Monitoring Resource Group | `rg-az104-monitoring-01` |
+| Workspace Retention | `30 days` |
+
+---
+
+## Important Monitoring Principle
+
+> Good monitoring is based on evidence, not assumptions.
+
+A monitoring configuration should be validated at multiple levels:
+
+1. Resource exists
+2. Diagnostic settings exist
+3. Telemetry categories are enabled
+4. Azure Monitor exposes actual metrics
+5. Metric data contains datapoints
+6. Alerts are configured correctly
+7. Monitoring evidence is captured
+
+A configured monitoring system is not automatically a validated monitoring system.
+
+---
+
+# Architecture
 
 ```text
-                    Azure Storage Account
-                         stppstlab001
-                              |
-                    Diagnostic Settings
-                              |
-              +---------------+---------------+
-              |                               |
-              v                               v
-          Metrics                          Blob Logs
-              |                               |
-       Transaction                    Read / Write / Delete
-              |                               |
-              v                               v
-        AzureMetrics                  StorageBlobLogs
-              |                               |
-              +---------------+---------------+
-                              |
-                              v
-                  Log Analytics Workspace
-                    law-ppst-storage-lab
-                              |
-                              v
-                             KQL
-                              |
-                    +---------+---------+
-                    |                   |
-                    v                   v
-                Analysis             Alerts
-                                        |
-                                        v
-                                  Action Group
-                                        |
-                                        v
-                                    Notification
+                         Azure Storage Account
+                              staz104az01
+                                   |
+                                   |
+                         Diagnostic Setting
+                         diag-staz104az01
+                                   |
+                         +---------+---------+
+                         |                   |
+                         v                   v
+                    Capacity            Transaction
+                         |                   |
+                         +---------+---------+
+                                   |
+                                   v
+                            Azure Monitor
+                                   |
+                    +--------------+--------------+
+                    |                             |
+                    v                             v
+             UsedCapacity                  Transactions
+                    |                             |
+                    |                             v
+                    |                    Metric Alert
+                    |              alert-staz104az01-transactions
+                    |                             |
+                    |                    Transactions > 10
+                    |
+                    v
+              Monitoring Evidence
 
 
 
-
-
-Resources Created
-Resource	Name
-Resource Group	rg-ppst-storage-lab
-Storage Account	stppstlab001
-Log Analytics Workspace	law-ppst-storage-lab
-Storage Diagnostic Setting	storage-monitoring-diagnostics
-Blob Diagnostic Setting	blob-monitoring-diagnostics
 Monitoring Components
-1. Azure Metrics
+1. Diagnostic Settings
 
-Storage metrics provide numerical measurements about resource behavior and performance.
+Diagnostic setting:
 
-Examples include:
+diag-staz104az01
+
+Storage Account:
+
+staz104az01
+
+Configured metric categories:
+
+Capacity
+Transaction
+
+Destination:
+
+lawaz104mon01
+
+The diagnostic setting was verified using Azure CLI.
+
+2. Log Analytics Workspace
+
+Existing workspace:
+
+lawaz104mon01
+
+Resource Group:
+
+rg-az104-monitoring-01
+
+Region:
+
+eastus
+
+Retention:
+
+30 days
+
+The workspace already existed before this lab.
+
+No additional workspace was created.
+
+3. Azure Monitor Metrics
+
+The Storage Account exposes multiple platform metrics.
+
+The environment reported:
+
+UsedCapacity
+Transactions
+Ingress
+Egress
+SuccessServerLatency
+SuccessE2ELatency
+Availability
+ReplicationLagSeconds
+MigrationProgress
+
+Two metrics were specifically validated during this lab:
 
 Transactions
-Used Capacity
-Latency
-Availability
-Other platform metrics
+UsedCapacity
+4. Transactions Metric
 
-Metrics are useful for answering:
+The Transactions metric supports fine-grained monitoring.
 
-How is the resource performing?
+The lab queried:
 
-Metrics were routed to the Log Analytics workspace and validated through the AzureMetrics table.
+Transactions
 
-2. Storage Blob Resource Logs
+using:
 
-Blob diagnostic logging was configured for:
+PT1M
 
-Storage Read
-Storage Write
-Storage Delete
+one-minute intervals.
 
-These logs are stored in the:
+The resulting datapoints showed:
 
-StorageBlobLogs
+Transactions = 0.0
 
-table in Log Analytics.
+during the observed periods.
 
-Resource logs answer:
+A zero value is still valid telemetry.
 
-What exactly happened?
+It means the Storage Account had no transactions during those periods.
 
-3. Log Analytics
+5. Used Capacity Metric
 
-The workspace:
+The actual Storage Account metric name is:
 
-law-ppst-storage-lab
+UsedCapacity
 
-provides centralized storage and querying of monitoring telemetry.
+It does not support a one-minute time grain.
 
-Kusto Query Language (KQL) was used to inspect and analyze the collected telemetry.
+Azure returned the supported common grains:
 
-KQL Validation
-Discover available tables
-search *
-| summarize Count = count() by $table
-| order by Count desc
+01:00:00
+06:00:00
+12:00:00
+1.00:00:00
 
-This was used to determine which tables contained telemetry.
+The metric was therefore queried using:
 
-The lab confirmed that AzureMetrics contained data.
+PT1H
 
-Query Azure Metrics
-AzureMetrics
-| order by TimeGenerated desc
-| take 20
-Summarize metrics
-AzureMetrics
-| summarize Count = count() by MetricName
-| order by Count desc
-Analyze metric values
-AzureMetrics
-| summarize
-    Count = count(),
-    AvgValue = avg(Average),
-    MaxValue = max(Maximum)
-    by MetricName
-| order by MetricName asc
-Query Blob Logs
-StorageBlobLogs
-| where TimeGenerated > ago(30m)
-| summarize Count = count()
+The lab successfully returned:
 
-Blob activity was generated and successfully appeared in the StorageBlobLogs table.
+Used capacity = 1447.0
 
-Inspect Blob operations
-StorageBlobLogs
-| where TimeGenerated > ago(30m)
-| project TimeGenerated, OperationName, StatusText, StatusCode, Uri
-| order by TimeGenerated desc
-Metrics vs Logs
+This demonstrates an important monitoring concept:
 
-One of the primary lessons from this lab was understanding the difference between metrics and resource logs.
+Different metrics can support different time grains.
+
+Do not assume that every Azure metric supports one-minute resolution.
+
+Metric Alert
+
+The lab created the following Azure Monitor metric alert:
+
+Name:
+alert-staz104az01-transactions
+
+Scope:
+
+staz104az01
+
+Metric:
+
+Transactions
+
+Aggregation:
+
+Total
+
+Condition:
+
+Transactions > 10
+
+Window:
+
+5 minutes
+
+Evaluation frequency:
+
+1 minute
+
+Severity:
+
+2
+
+Enabled:
+
+True
+
+Action Groups:
+
+None
+
+The alert was successfully created and verified.
+
+Metrics vs Resource Logs
+
+Metrics and resource logs are different monitoring mechanisms.
 
 Metrics
-AzureMetrics
-    |
-    +-- Average
-    +-- Maximum
-    +-- Total
 
-Metrics provide numerical measurements used to understand resource health and performance.
+Metrics are numerical measurements.
 
-Logs
-StorageBlobLogs
-    |
-    +-- Operation
-    +-- Status
-    +-- Request details
-    +-- URI
-    +-- Time
+Examples:
 
-Logs provide detailed information about individual operations and events.
-
-Mental Model
-
-Metrics tell you how the system is behaving.
-
-Logs tell you what happened.
-
-Troubleshooting Exercise
-
-During the lab, an initial KQL query returned:
-
-No results found from the specified time range
-
-Instead of assuming that telemetry ingestion was broken, the investigation was broadened.
-
-The following query was used:
-
-search *
-| summarize Count = count() by $table
-| order by Count desc
-
-The workspace showed records in AzureMetrics.
-
-This demonstrated an important troubleshooting principle:
-
-No results from a query does not necessarily mean that no telemetry exists.
-
-The original query contained an overly restrictive filter.
-
-The investigation then moved from:
-
-Assumption
-    |
-    v
-No data
-
-to:
-
-Broad query
-    |
-    v
-Inspect tables
-    |
-    v
-Inspect schema/data
-    |
-    v
-Understand telemetry
-    |
-    v
-Build narrower query
-Blob Log Troubleshooting
-
-The StorageBlobLogs table existed but initially contained zero records.
-
-The diagnostic configuration was then verified.
-
-Blob diagnostic settings were configured with:
-
-Storage Read
-Storage Write
-Storage Delete
-Transaction
-Log Analytics destination
-
-Actual Blob operations were then generated.
-
-After the activity occurred, StorageBlobLogs contained records.
-
-This demonstrated another important monitoring principle:
-
-A table existing does not mean that telemetry is being ingested into that table.
-
-Alerting
-
-Azure Monitor alerts were configured as part of the monitoring lab.
-
-The alert architecture is:
-
-Metric
-   |
-   v
-Threshold
-   |
-   v
-Alert Rule
-   |
-   v
-Action Group
-   |
-   v
-Notification
-
-This allows Azure to automatically notify an administrator when a monitored condition crosses a defined threshold.
-
-Production Monitoring Mental Model
-
-A production workload should be monitored across multiple dimensions:
-
-Compute
-Storage
-Networking
-Identity
-Application
-Security
-Performance
+Transactions
+UsedCapacity
+Ingress
+Egress
+Latency
 Availability
-Cost
 
-Monitoring provides the telemetry necessary to understand the health of these components.
+Metrics answer questions such as:
 
-Key AZ-104 Concepts Demonstrated
-Azure Monitor
-Azure Storage monitoring
-Storage metrics
-Diagnostic Settings
-Log Analytics
-KQL
-Resource logs
-Blob logging
-AzureMetrics
-StorageBlobLogs
+How much activity is occurring?
+How much storage is being used?
+How is the resource performing?
+Is availability changing?
+
+Metrics are particularly useful for:
+
+Dashboards
 Alerts
-Action Groups
-Telemetry troubleshooting
-Monitoring architecture
-Key Engineering Lessons
-1. Don't assume no data means no telemetry
+Threshold monitoring
+Capacity planning
+Performance monitoring
+Resource Logs
 
-Always validate with a broad query first.
+Resource logs provide more detailed information about operations and events.
 
-2. Understand the telemetry pipeline
-Resource
-   |
-   v
-Diagnostic Settings
-   |
-   v
-Destination
-   |
-   v
-Log Analytics
-   |
-   v
-Table
-   |
-   v
-KQL
-3. Understand the difference between metrics and logs
+Examples can include:
 
-Metrics provide numerical measurements.
+Read
+Write
+Delete
+Authentication events
+Service events
 
-Logs provide detailed events and operations.
+Resource logs require appropriate diagnostic categories to be enabled.
 
-4. Monitoring is an engineering feedback loop
-Observe
-   |
-   v
-Measure
-   |
-   v
-Analyze
-   |
-   v
-Detect
-   |
-   v
-Alert
-   |
-   v
-Respond
-Lab Outcome
+Important Lab Result
 
-The Azure Storage monitoring environment was successfully configured and validated.
+For this implementation, the Storage Account diagnostic setting contains:
 
-The lab demonstrated:
+logs: []
 
-Storage metrics flowing to Log Analytics.
-AzureMetrics containing telemetry.
-Blob diagnostic logging configured.
-Storage Blob operations appearing in StorageBlobLogs.
-KQL used to inspect and analyze telemetry.
-Azure Monitor alerting concepts.
-Troubleshooting of telemetry ingestion and query behavior.
+Therefore this lab does not claim that Storage Blob resource logs were collected.
+
+This distinction is intentional.
+
+The lab validates:
+
+Storage metrics
+Azure Monitor metrics
+Metric alerts
+
+rather than claiming telemetry that was not actually enabled.
+
+Evidence-Based Troubleshooting
+
+Several useful monitoring lessons were discovered during the lab.
+
+Lesson 1 - Diagnostic Settings May Not Already Exist
+
+Initial verification returned:
+
+[]
+
+for Storage Account diagnostic settings.
+
+Therefore the diagnostic setting had to be created.
+
+Lesson 2 - Discover Categories Before Configuring
+
+Azure exposed these diagnostic metric categories:
+
+Capacity
+Transaction
+
+The configuration was created using the categories actually reported by Azure.
+
+Lesson 3 - Category Names and Metric Names Are Not Always Identical
+
+The diagnostic category:
+
+Capacity
+
+does not mean the Azure Monitor metric is named:
+
+Capacity
+
+When queried directly, Azure reported the valid metric:
+
+UsedCapacity
+
+This is an important troubleshooting distinction.
+
+Lesson 4 - Metrics Have Different Time Grains
+
+Transactions supported:
+
+PT1M
+
+while UsedCapacity required a larger time grain.
+
+Attempting:
+
+UsedCapacity + PT1M
+
+returned a BadRequest.
+
+The corrected query used:
+
+PT1H
+Lesson 5 - Empty Activity Is Still Evidence
+
+The Transactions metric returned:
+
+0.0
+
+for many periods.
+
+This does not mean monitoring failed.
+
+It means:
+
+The metric exists
++
+Azure is returning datapoints
++
+No transactions occurred during those periods
+Lab Evidence
+
+Screenshots collected during the lab are stored under:
+
+screenshots/
+
+Expected evidence:
+
+01-diagnostic-settings-configured.png
+02-storage-alert-created.png
+03-storage-metrics-validation.png
+04-final-storage-monitoring-validation.png
+
+These screenshots represent the current staz104az01 environment.
+
+Old screenshots from previous monitoring environments were removed so that the evidence remains consistent with the current lab environment.
+
+Validation Checklist
+
+Before considering the lab complete:
+
+ Storage Account verified
+ Resource Group verified
+ Log Analytics workspace verified
+ Diagnostic categories discovered
+ Diagnostic Setting created
+ Capacity metric category enabled
+ Transaction metric category enabled
+ Transactions metric queried
+ UsedCapacity metric queried
+ Metric time-grain behavior validated
+ Storage metric alert created
+ Metric alert verified
+ Final monitoring evidence captured
+ Old environment screenshots removed
+ Documentation updated
+Final Monitoring State
+Storage Account
+    staz104az01
+        |
+        +-- Diagnostic Setting
+        |      diag-staz104az01
+        |
+        +-- Metrics
+        |      +-- Capacity
+        |      +-- Transaction
+        |
+        +-- Azure Monitor
+        |      +-- Transactions
+        |      +-- UsedCapacity
+        |
+        +-- Metric Alert
+               alert-staz104az01-transactions
+               Transactions > 10
+Key Takeaways
+Azure Monitor provides platform metrics for Azure resources.
+Diagnostic Settings control telemetry routing.
+Metrics and resource logs are different telemetry types.
+Metric names must be discovered rather than assumed.
+Different metrics support different time grains.
+A configured diagnostic setting should be validated with actual telemetry.
+Zero-valued datapoints are still valid monitoring evidence.
+Alerts can monitor metric thresholds.
+Monitoring should be based on observed evidence.
+Avoid documenting telemetry that was not actually enabled or verified.

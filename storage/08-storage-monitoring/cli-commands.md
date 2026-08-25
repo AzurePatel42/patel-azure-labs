@@ -1,420 +1,385 @@
-# Azure Storage Monitoring — CLI & KQL Reference
+# Azure Storage Monitoring - CLI Commands
 
 ## Overview
 
-This file contains Azure CLI commands and Kusto Query Language (KQL) queries used or relevant to the Storage Monitoring lab.
-
-The lab primarily used the Azure Portal and Log Analytics for configuration and validation.
+This document contains the Azure CLI commands used to configure and validate monitoring for the Azure Storage Account used in Lab 08.
 
 ---
 
-# 1. Azure CLI — Login
+## Lab Environment
 
-```bash
-az login
+```text
+Subscription:
+patel-platform-service-template
 
-List subscriptions:
+Resource Group:
+rg-az104-storage-01
 
-az account list --output table
+Storage Account:
+staz104az01
 
-Select the lab subscription:
+Log Analytics Workspace:
+lawaz104mon01
 
-az account set --subscription "patel-platform-service-template"
+Monitoring Resource Group:
+rg-az104-monitoring-01
 
-Verify the current subscription:
 
-az account show --output table
-2. Resource Group
-
-Show the resource group:
-
-az group show \
-  --name rg-ppst-storage-lab \
+1. Verify Azure CLI
+az version
+2. Verify Azure Subscription
+az account show `
+  --query "{User:user.name,Subscription:id,SubscriptionName:name}" `
+  --output table
+3. Set Lab Variables
+$resourceGroup = "rg-az104-storage-01"
+$storageAccount = "staz104az01"
+4. Verify Resource Group
+az group show `
+  --name $resourceGroup `
+  --query "{Name:name,Location:location,ProvisioningState:properties.provisioningState}" `
   --output table
 
-List resources:
+Expected:
 
-az resource list \
-  --resource-group rg-ppst-storage-lab \
-  --output table
-3. Storage Account
-
-Show the Storage Account:
-
-az storage account show \
-  --name stppstlab001 \
-  --resource-group rg-ppst-storage-lab \
+Name                 Location    ProvisioningState
+-------------------  ----------  -------------------
+rg-az104-storage-01  eastus      Succeeded
+5. Verify Storage Account
+az storage account show `
+  --name $storageAccount `
+  --resource-group $resourceGroup `
+  --query "{Name:name,Location:location,Kind:kind,SKU:sku.name}" `
   --output table
 
-List Storage Accounts:
+Expected:
 
-az storage account list \
-  --resource-group rg-ppst-storage-lab \
-  --output table
-4. Log Analytics Workspace
+Name         Location    Kind       SKU
+-----------  ----------  ---------  ------------
+staz104az01  eastus      StorageV2  Standard_LRS
+6. Get Storage Account Resource ID
+$storageId = az storage account show `
+  --name $storageAccount `
+  --resource-group $resourceGroup `
+  --query id `
+  --output tsv
 
-Show the workspace:
+Verify:
 
-az monitor log-analytics workspace show \
-  --resource-group rg-ppst-storage-lab \
-  --workspace-name law-ppst-storage-lab \
-  --output table
+$storageId
 
-List Log Analytics workspaces:
+Expected format:
 
-az monitor log-analytics workspace list \
-  --resource-group rg-ppst-storage-lab \
-  --output table
-5. Diagnostic Settings
-
-List Storage Account diagnostic settings:
-
-az monitor diagnostic-settings list \
-  --resource "$(az storage account show \
-    --name stppstlab001 \
-    --resource-group rg-ppst-storage-lab \
-    --query id \
-    --output tsv)" \
+/subscriptions/<subscription-id>/resourceGroups/rg-az104-storage-01/providers/Microsoft.Storage/storageAccounts/staz104az01
+7. Verify Log Analytics Workspace
+az monitor log-analytics workspace show `
+  --resource-group rg-az104-monitoring-01 `
+  --workspace-name lawaz104mon01 `
+  --query "{Name:name,Location:location,Retention:retentionInDays,State:provisioningState}" `
   --output table
 
-Show a specific diagnostic setting:
+Expected:
 
-az monitor diagnostic-settings show \
-  --name storage-monitoring-diagnostics \
-  --resource "$(az storage account show \
-    --name stppstlab001 \
-    --resource-group rg-ppst-storage-lab \
-    --query id \
-    --output tsv)"
-6. KQL — Discover Tables
+Name           Location    Retention    State
+-------------  ----------  -----------  ---------
+lawaz104mon01  eastus      30           Succeeded
+8. Get Workspace Resource ID
+$workspaceId = az monitor log-analytics workspace show `
+  --resource-group rg-az104-monitoring-01 `
+  --workspace-name lawaz104mon01 `
+  --query id `
+  --output tsv
 
-Use this query in Log Analytics to discover tables containing data:
+Verify:
 
-search *
-| summarize Count = count() by $table
-| order by Count desc
+$workspaceId
+9. Check Existing Diagnostic Settings
+az monitor diagnostic-settings list `
+  --resource $storageId `
+  --output json
 
-This is useful when the expected table is unknown.
+If no settings are configured, the result is:
 
-7. KQL — Inspect Azure Metrics
+[]
+10. Discover Diagnostic Categories
+az monitor diagnostic-settings categories list `
+  --resource $storageId `
+  --output json
 
-Query the latest Azure metric records:
+The lab environment returned:
 
-AzureMetrics
-| order by TimeGenerated desc
-| take 20
-8. KQL — Count Metrics by Name
-AzureMetrics
-| summarize Count = count() by MetricName
-| order by Count desc
-
-This helps identify which metrics are being ingested.
-
-9. KQL — Analyze Metric Values
-AzureMetrics
-| summarize
-    Count = count(),
-    AvgValue = avg(Average),
-    MaxValue = max(Maximum)
-    by MetricName
-| order by MetricName asc
-
-This converts raw metric samples into a summarized view.
-
-10. KQL — Inspect Metric Records
-AzureMetrics
-| project
-    TimeGenerated,
-    MetricName,
-    Average,
-    Maximum,
-    Total
-| order by TimeGenerated desc
-11. KQL — Check Blob Log Count
-StorageBlobLogs
-| summarize Count = count()
-
-This determines whether Blob resource logs have been ingested.
-
-12. KQL — Check Recent Blob Logs
-StorageBlobLogs
-| where TimeGenerated > ago(30m)
-| summarize Count = count()
-
-This focuses on recent Blob telemetry.
-
-13. KQL — Inspect Blob Operations
-StorageBlobLogs
-| where TimeGenerated > ago(30m)
-| project
-    TimeGenerated,
-    OperationName,
-    StatusText,
-    StatusCode,
-    Uri
-| order by TimeGenerated desc
-
-This exposes details about recent Blob operations.
-
-14. KQL — Summarize Blob Operations
-StorageBlobLogs
-| where TimeGenerated > ago(30m)
-| summarize Count = count() by OperationName
-| order by Count desc
-
-This helps determine which operations occurred.
-
-Examples may include operations corresponding to:
-
-Read
-Write
-Delete
-15. KQL — Search for Storage Telemetry
-
-A broad search can be useful when troubleshooting:
-
-search "stppstlab001"
-| order by TimeGenerated desc
-
-Use broad searches carefully in large production workspaces because they can scan significant amounts of data.
-
-16. KQL Time Syntax
-
-KQL uses compact duration notation.
-
-Correct:
-
-ago(1h)
-
-Examples:
-
-1m  = 1 minute
-1h  = 1 hour
-1d  = 1 day
-7d  = 7 days
-
-Incorrect:
-
-ago(1 hour)
-17. Useful KQL Operators
-where
-
-Filter records:
-
-AzureMetrics
-| where TimeGenerated > ago(1h)
-project
-
-Select columns:
-
-AzureMetrics
-| project TimeGenerated, MetricName, Average
-summarize
-
-Aggregate data:
-
-AzureMetrics
-| summarize Count = count() by MetricName
-order by
-
-Sort results:
-
-AzureMetrics
-| order by TimeGenerated desc
-take
-
-Limit the number of records:
-
-AzureMetrics
-| take 20
-18. Troubleshooting Query Strategy
-
-When a query returns no results, do not immediately conclude that telemetry is missing.
-
-Start broadly:
-
-search *
-| summarize Count = count() by $table
-| order by Count desc
-
-Then identify the relevant table.
-
-Next inspect the table:
-
-AzureMetrics
-| take 20
-
-Then inspect the schema and available values.
-
-Finally add filters.
-
-General strategy:
-
-Broad Query
-    |
-    v
-Identify Table
-    |
-    v
-Inspect Records
-    |
-    v
-Understand Schema
-    |
-    v
-Add Filters
-    |
-    v
-Production Query
-19. Metrics vs Resource Logs
-Metrics
-AzureMetrics
-
-Used for numerical measurements such as:
-
-Average
-Maximum
-Total
-Transaction counts
 Capacity
-Performance measurements
-Resource Logs
-StorageBlobLogs
+Transaction
 
-Used for detailed operations and events.
+Both categories were reported as metrics.
 
-20. Azure CLI — Useful Discovery Commands
+11. Create Diagnostic Setting
+az monitor diagnostic-settings create `
+  --name "diag-staz104az01" `
+  --resource $storageId `
+  --workspace $workspaceId `
+  --metrics '[{"category":"Capacity","enabled":true},{"category":"Transaction","enabled":true}]'
 
-List resources:
+The diagnostic setting sends the selected metrics to:
 
-az resource list \
-  --resource-group rg-ppst-storage-lab \
+lawaz104mon01
+12. Verify Diagnostic Setting
+az monitor diagnostic-settings list `
+  --resource $storageId `
   --output table
 
-List storage accounts:
+Expected:
 
-az storage account list \
+Name
+-----------------
+diag-staz104az01
+13. Show Diagnostic Setting
+az monitor diagnostic-settings show `
+  --resource $storageId `
+  --name "diag-staz104az01" `
+  --output json
+
+Expected metric categories:
+
+Capacity
+Transaction
+
+Important:
+
+logs: []
+
+The current lab configuration enables Storage metrics but does not enable Storage resource logs.
+
+14. Query Transactions Metric
+az monitor metrics list `
+  --resource $storageId `
+  --metric Transactions `
+  --interval PT1M `
+  --aggregation Total `
   --output table
-
-List Log Analytics workspaces:
-
-az monitor log-analytics workspace list \
-  --output table
-21. Azure CLI — General Monitoring Workflow
-az login
-    |
-    v
-az account set
-    |
-    v
-Identify Resource
-    |
-    v
-Configure Diagnostic Settings
-    |
-    v
-Send Telemetry
-    |
-    v
-Log Analytics
-    |
-    v
-KQL
-22. Important Engineering Notes
-No results does not always mean no data
-
-A query can fail to return results because:
-
-The time range is wrong.
-The filter is too restrictive.
-The resource ID format is different than expected.
-The table is not the expected table.
-Telemetry has not arrived yet.
-Diagnostic settings are not configured.
-The resource has not generated the expected activity.
-
-Always investigate systematically.
-
-Table exists does not mean data exists
 
 Example:
 
-StorageBlobLogs
-     |
-     +-- Table exists
-     |
-     +-- 0 records
+Timestamp             Name          Total
+--------------------  ------------  -------
+2026-08-25T02:42:00Z  Transactions  0.0
 
-After generating activity:
+A value of 0.0 is valid telemetry and indicates no transactions occurred during that period.
 
-StorageBlobLogs
-     |
-     +-- Records available
-23. Final Monitoring Query Set
-Discover data
-search *
-| summarize Count = count() by $table
-| order by Count desc
-Metrics
+15. Discover Valid Storage Metrics
+
+If a metric query fails, Azure can report the available metrics.
+
+The lab environment reported:
+
+UsedCapacity
+Transactions
+Ingress
+Egress
+SuccessServerLatency
+SuccessE2ELatency
+Availability
+ReplicationLagSeconds
+MigrationProgress
+16. Query Used Capacity
+
+The UsedCapacity metric does not support a one-minute time grain.
+
+Use:
+
+az monitor metrics list `
+  --resource $storageId `
+  --metric UsedCapacity `
+  --interval PT1H `
+  --aggregation Average `
+  --output table
+
+Successful validation returned:
+
+Timestamp             Name           Average
+--------------------  -------------  ---------
+2026-08-25T01:45:00Z  Used capacity  1447.0
+17. Check Existing Metric Alerts
+az monitor metrics alert list `
+  --resource-group $resourceGroup `
+  --output table
+18. Create Transaction Metric Alert
+az monitor metrics alert create `
+  --name "alert-staz104az01-transactions" `
+  --resource-group $resourceGroup `
+  --scopes $storageId `
+  --condition "total Transactions > 10" `
+  --window-size 5m `
+  --evaluation-frequency 1m `
+  --severity 2 `
+  --description "Monitor storage transaction activity on staz104az01"
+
+Configuration:
+
+Metric:
+Transactions
+
+Aggregation:
+Total
+
+Condition:
+Transactions > 10
+
+Window:
+5 minutes
+
+Evaluation Frequency:
+1 minute
+
+Severity:
+2
+19. Verify Metric Alert
+az monitor metrics alert list `
+  --resource-group $resourceGroup `
+  --output table
+
+Expected:
+
+Name
+------------------------------
+alert-staz104az01-transactions
+20. Show Metric Alert
+az monitor metrics alert show `
+  --resource-group $resourceGroup `
+  --name "alert-staz104az01-transactions" `
+  --output json
+21. Concise Alert Validation
+az monitor metrics alert show `
+  --resource-group $resourceGroup `
+  --name "alert-staz104az01-transactions" `
+  --query "{Name:name,Enabled:enabled,Metric:criteria.allOf[0].metricName,Operator:criteria.allOf[0].operator,Threshold:criteria.allOf[0].threshold,Window:windowSize,Frequency:evaluationFrequency,Severity:severity}" `
+  --output table
+
+Expected values:
+
+Metric:
+Transactions
+
+Operator:
+GreaterThan
+
+Threshold:
+10
+
+Window:
+PT5M
+
+Frequency:
+PT1M
+
+Severity:
+2
+22. Validate Storage Metrics in Log Analytics
+
+The metric data was successfully found in:
+
 AzureMetrics
-| order by TimeGenerated desc
-| take 20
-Metric summary
-AzureMetrics
-| summarize Count = count() by MetricName
-| order by Count desc
-Blob log count
-StorageBlobLogs
-| where TimeGenerated > ago(30m)
-| summarize Count = count()
-Blob operations
-StorageBlobLogs
-| where TimeGenerated > ago(30m)
-| summarize Count = count() by OperationName
-| order by Count desc
-Blob details
-StorageBlobLogs
-| where TimeGenerated > ago(30m)
-| project
-    TimeGenerated,
-    OperationName,
-    StatusText,
-    StatusCode,
-    Uri
-| order by TimeGenerated desc
-Final Principle
 
-Use Azure CLI to automate and inspect infrastructure.
+This confirms that metric telemetry is available in the monitoring workspace.
 
-Use KQL to investigate telemetry.
+The current diagnostic configuration is metric-based.
 
-Use Azure Monitor to observe health.
+23. Validate Transactions
+az monitor metrics list `
+  --resource $storageId `
+  --metric Transactions `
+  --interval PT1M `
+  --aggregation Total `
+  --output table
 
-Use Diagnostic Settings to route telemetry.
+Review the returned timestamps and values.
 
-Use Alerts and Action Groups to turn telemetry into operational action.
+24. Validate Used Capacity
+az monitor metrics list `
+  --resource $storageId `
+  --metric UsedCapacity `
+  --interval PT1H `
+  --aggregation Average `
+  --output table
+25. Final Diagnostic Validation
+az monitor diagnostic-settings show `
+  --resource $storageId `
+  --name "diag-staz104az01" `
+  --output json
 
-The complete workflow is:
+Confirm:
 
-Azure Resource
-      |
-      v
-Diagnostic Settings
-      |
-      v
-Metrics / Resource Logs
-      |
-      v
-Log Analytics
-      |
-      v
-KQL
-      |
-      v
-Analysis
-      |
-      v
-Alert
-      |
-      v
-Action
+Capacity       enabled
+Transaction    enabled
+26. Final Alert Validation
+az monitor metrics alert show `
+  --resource-group $resourceGroup `
+  --name "alert-staz104az01-transactions" `
+  --query "{Name:name,Enabled:enabled,Metric:criteria.allOf[0].metricName,Operator:criteria.allOf[0].operator,Threshold:criteria.allOf[0].threshold,Window:windowSize,Frequency:evaluationFrequency,Severity:severity}" `
+  --output table
+27. Screenshot Validation
+Get-ChildItem .\screenshots -File |
+    Sort-Object Name |
+    Select-Object Name,Length
+
+Expected:
+
+01-diagnostic-settings-configured.png
+02-storage-alert-created.png
+03-storage-metrics-validation.png
+04-final-storage-monitoring-validation.png
+28. Documentation Validation
+
+Check for encoding corruption:
+
+Select-String `
+  -Path .\README.md,.\cli-commands.md,.\portal-steps.md,.\notes.md `
+
+Expected result:
+
+No output
+29. Git Validation
+
+From the Storage repository root:
+
+git diff --check
+
+Review Module 08 changes:
+
+git diff --stat
+
+Check working tree:
+
+git status --short
+30. Stage Module 08
+
+From:
+
+C:\patel-azure-labs\storage
+
+run:
+
+git add 08-storage-monitoring
+
+Review:
+
+git status
+
+Review staged statistics:
+
+git diff --cached --stat
+
+Check staged whitespace:
+
+git diff --cached --check
+Key CLI Lessons
+Verify the resource before configuring monitoring.
+Discover diagnostic categories before creating Diagnostic Settings.
+Discover valid metric names instead of guessing.
+Metric category names and metric names may differ.
+Different metrics can support different time grains.
+Validate actual metric datapoints.
+Validate alerts after creation.
+Metrics and resource logs are different telemetry types.
+Document only telemetry that was actually configured and verified.
+Use Git validation before committing the completed lab.
