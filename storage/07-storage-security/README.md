@@ -1,4 +1,4 @@
-# Lab 07 — Azure Storage Security
+# Lab 07 â€” Azure Storage Security
 
 ## Overview
 
@@ -91,15 +91,15 @@ Azure Storage security can be viewed as several layers:
 
 ```text
 Network Security
-       ↓
+       â†“
 Authentication
-       ↓
+       â†“
 Authorization
-       ↓
+       â†“
 Data Access
-       ↓
+       â†“
 Encryption
-       ↓
+       â†“
 Monitoring
 ```
 
@@ -152,10 +152,10 @@ Conceptually:
 ```text
 Approved IP
      |
-     ↓
+     â†“
 Storage Account
      |
-     ↓
+     â†“
 Allowed
 ```
 
@@ -164,10 +164,10 @@ while:
 ```text
 Unapproved IP
      |
-     ↓
+     â†“
 Storage Account
      |
-     ↓
+     â†“
 Blocked
 ```
 
@@ -186,7 +186,7 @@ Virtual Network
       |
    Subnet
       |
-      ↓
+      â†“
 Storage Account
 ```
 
@@ -345,14 +345,14 @@ Typical process:
 Application
     |
     | Uses key1
-    ↓
+    â†“
 Rotate key2
     |
-    ↓
+    â†“
 Update application
     |
     | Uses key2
-    ↓
+    â†“
 Rotate key1
 ```
 
@@ -381,7 +381,7 @@ Conceptually:
 ```text
 Storage Account
        |
-       ↓
+       â†“
      SAS
        |
        +---- Scope
@@ -453,11 +453,11 @@ Example:
 
 ```text
 Start
-  ↓
+  â†“
 Temporary Access
-  ↓
+  â†“
 Expiration
-  ↓
+  â†“
 Access Ends
 ```
 
@@ -489,13 +489,13 @@ Conceptually:
 ```text
 Application
      |
-     ↓
+     â†“
 Azure Storage
      |
-     ↓
+     â†“
 Storage Encryption
      |
-     ↓
+     â†“
 Encrypted Data
 ```
 
@@ -524,13 +524,13 @@ The architecture can look like:
 ```text
 Organization
       |
-      ↓
+      â†“
 Azure Key Vault
       |
-      ↓
+      â†“
 Customer-Managed Key
       |
-      ↓
+      â†“
 Storage Encryption
 ```
 
@@ -556,11 +556,11 @@ Conceptually:
 
 ```text
 Data
- ↓
+ â†“
 Storage Service Encryption
- ↓
+ â†“
 Infrastructure Encryption
- ↓
+ â†“
 Azure Infrastructure
 ```
 
@@ -582,7 +582,7 @@ Example:
 Client
    |
    | HTTPS / TLS
-   ↓
+   â†“
 Azure Storage
 ```
 
@@ -647,10 +647,10 @@ Bad design:
 ```text
 Application
      |
-     ↓
+     â†“
 Storage Account Key
      |
-     ↓
+     â†“
 Broad Access
 ```
 
@@ -659,13 +659,13 @@ Better design:
 ```text
 Application
      |
-     ↓
+     â†“
 Microsoft Entra ID
      |
-     ↓
+     â†“
 Specific RBAC Role
      |
-     ↓
+     â†“
 Required Data
 ```
 
@@ -685,11 +685,11 @@ General architectural preference:
 
 ```text
 Microsoft Entra ID + RBAC
-            ↓
+            â†“
 Preferred for identity-based access
-            ↓
+            â†“
 SAS when delegated access is required
-            ↓
+            â†“
 Avoid distributing account keys when possible
 ```
 
@@ -708,6 +708,7 @@ screenshots/
 Expected evidence includes:
 
 ```text
+00-storage-security-environment-inventory.png
 01-storage-networking-public-access.png
 02-network-firewall-ip-restriction.png
 03-storage-security-configuration.png
@@ -715,6 +716,7 @@ Expected evidence includes:
 05-access-keys.png
 06-sas-configuration.png
 07-storage-encryption.png
+08-add-role-assignment.png
 ```
 
 If a screenshot contains sensitive credentials, it must be sanitized or removed.
