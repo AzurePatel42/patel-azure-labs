@@ -1,49 +1,288 @@
-﻿# AZ-104 Identity & Governance - Troubleshooting
+# AZ-104 Identity & Governance - Troubleshooting
 
-## Problem 1
+## Troubleshooting Mental Model
+
+Always separate:
+
+Authentication
+    =
+Who are you?
+
+Authorization
+    =
+What are you allowed to do?
+
+---
+
+## Problem 1 - Token Acquisition Fails
+
+Symptoms:
+- Application cannot obtain a Microsoft Entra token
+- Authentication fails before accessing the target service
+
+Investigate:
+1. Is managed identity enabled or attached?
+2. Is the application requesting the correct identity?
+3. Is the target identity available to the workload?
+4. Is the authentication configuration correct?
+
+Mental Model:
+
+No valid token
+    ->
+Investigate authentication first
+
+---
+
+## Problem 2 - Token Succeeds but Service Returns 403
+
+Symptoms:
+- Managed identity successfully obtains a token
+- Key Vault or another Azure service returns HTTP 403
+
+Interpretation:
+Authentication likely succeeded.
+
+Investigate:
+1. Which principal actually obtained the token?
+2. Does that principal have the required role?
+3. Is the role a management-plane or data-plane role?
+4. Is the assignment at the correct scope?
+5. Is the service using the expected access-control model?
+6. Are network restrictions involved?
+
+Mental Model:
+
+Token works
+    +
+403
+    ->
+Investigate authorization and service access controls
+
+---
+
+## Problem 3 - Key Vault 403 After Resource Recreation
+
+Situation:
+An application previously worked with a user-assigned managed identity but fails after the application resource is recreated.
+
+Investigate:
+1. Verify the user-assigned identity is attached to the new resource.
+2. Verify the application is selecting the intended identity.
+3. Verify the managed identity still exists.
+4. Verify its principal ID.
+5. Verify Key Vault role assignments and scope.
+6. Verify Key Vault network configuration if necessary.
+
+Important:
+A recreated resource does not automatically inherit the identity configuration of the deleted resource.
+
+---
+
+## Problem 4 - Storage Account Reader but Blob Access Returns 403
+
+Situation:
+An identity has Reader on the Storage Account but cannot download blobs.
+
+Cause:
+Reader is a management-plane role.
+
+It does not grant blob data access.
+
+Resolution:
+Assign an appropriate data-plane role.
+
+For read-only access:
+
+Storage Blob Data Reader
+
+Mental Model:
+
+Reader
+    !=
+Storage Blob Data Reader
+
+---
+
+## Problem 5 - Contributor but Blob Access Fails
+
+Situation:
+An identity has Contributor but cannot perform a blob data operation.
+
+Cause:
+Contributor primarily provides Azure resource management permissions.
+
+Do not assume Contributor grants Storage data-plane access.
+
+Resolution:
+Determine the required blob operation and assign the appropriate Storage Blob Data role.
+
+---
+
+## Problem 6 - Contributor Cannot Assign Reader
 
 Error:
+
 Microsoft.Authorization/roleAssignments/write
 
-Diagnosis:
-The caller does not have permission to create an RBAC role assignment.
+Meaning:
+The caller lacks permission to create an Azure RBAC role assignment.
 
-First checks:
-- Effective RBAC roles
-- Assignment scope
-- Access-management permissions
+Contributor:
+    -> Can manage resources
+    -> Cannot assign RBAC roles
 
----
+Investigate:
+1. Caller's effective role assignments
+2. Assignment scopes
+3. Whether access management is actually required
 
-## Problem 2
+Possible access-management roles:
 
-Developer can manage a VM but cannot assign Reader.
+User Access Administrator
+Owner
 
-Diagnosis:
-Contributor allows resource management but does not allow RBAC role assignment.
-
----
-
-## Problem 3
-
-User can see a Storage Account but cannot read blob data.
-
-Diagnosis:
-Separate management-plane access from data-plane access.
-
-Reader provides management-plane visibility.
-Storage Blob Data Reader provides blob-data read access.
+Use the least-privileged role and smallest required scope.
 
 ---
 
-## Problem 4
+## Problem 7 - User Has More Access Than Expected
 
-User can see resources outside the intended resource group.
+Situation:
+A user has access to a resource even though there is no direct role assignment on that resource.
 
-Diagnosis:
-Check the scope where the RBAC assignment was made.
+Investigate inherited role assignments.
 
-A subscription-level assignment is inherited by child resource groups and resources.
+Scope hierarchy:
 
-Corrective action:
-Use the smallest scope that satisfies the requirement.
+Management Group
+    ->
+Subscription
+    ->
+Resource Group
+    ->
+Resource
+
+A role assigned at a parent scope can apply to child scopes.
+
+Example:
+
+Reader at subscription
+    ->
+Reader on resource groups
+    ->
+Reader on resources
+
+Resolution:
+Move an overly broad assignment to the smallest required scope when appropriate.
+
+---
+
+## Problem 8 - User Cannot Access One Storage Container
+
+Requirement:
+Application should read container-a only.
+
+Investigate:
+1. Is Storage Blob Data Reader assigned?
+2. Is the correct principal used?
+3. Is the role scoped to container-a?
+4. Has the RBAC assignment propagated?
+5. Are Storage networking rules blocking access?
+
+Least-privilege design:
+
+Principal
+    +
+Storage Blob Data Reader
+    +
+container-a
+    =
+Read-only access to required container
+
+---
+
+## Managed Identity Decision Tree
+
+Question:
+Should the identity disappear when the workload is deleted?
+
+YES
+    ->
+Consider system-assigned managed identity
+
+NO
+    ->
+Consider user-assigned managed identity
+
+Question:
+Do multiple workloads need to share the same identity?
+
+YES
+    ->
+User-assigned managed identity
+
+Question:
+Does every workload need a unique identity?
+
+YES
+    ->
+System-assigned managed identity is often appropriate
+
+---
+
+## RBAC Troubleshooting Decision Tree
+
+Access denied
+    ->
+
+Did authentication succeed?
+
+NO
+    ->
+Investigate identity and token acquisition
+
+YES
+    ->
+
+Is the operation resource management or data access?
+
+Resource management
+    ->
+Check management-plane role
+
+Data access
+    ->
+Check service-specific data-plane role
+
+Then verify:
+
+Principal
+    +
+Role
+    +
+Scope
+
+Finally check:
+
+Inheritance
+Propagation
+Service access model
+Network restrictions
+
+---
+
+## Interview Troubleshooting Pattern
+
+When asked why access is failing, answer in this order:
+
+1. Identify the principal.
+2. Determine whether authentication succeeded.
+3. Identify the attempted operation.
+4. Determine management plane vs data plane.
+5. Identify the exact required role or permission.
+6. Verify the assignment scope.
+7. Check inheritance.
+8. Check service-specific access controls.
+9. Check network restrictions when relevant.
+10. Apply least privilege rather than increasing permissions blindly.

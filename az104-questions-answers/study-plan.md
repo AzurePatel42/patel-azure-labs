@@ -256,3 +256,101 @@ Mock exams
 Weak-area elimination
 +
 Interview readiness
+---
+
+# Current Progress - September 2, 2026
+
+## Identity & Governance
+
+Questions completed:
+
+20
+
+Question sets:
+
+Q1-Q10
+    ->
+Completed September 1
+
+Q11-Q20
+    ->
+Completed September 2
+
+Current focus:
+
+Identity & Governance foundation
+
+Next question set:
+
+Q21-Q30
+
+---
+
+## Current Learning Focus
+
+The Identity & Governance foundation currently emphasizes:
+
+- Microsoft Entra ID
+- Azure RBAC
+- RBAC scope and inheritance
+- Least privilege
+- Management plane vs data plane
+- Managed identities
+- System-assigned vs user-assigned identities
+- Key Vault authorization
+- Storage Blob data access
+- RBAC troubleshooting
+- Authentication vs authorization
+
+---
+
+## Study Progression Rule
+
+Do not move to the next major domain simply because a certain number of questions have been completed.
+
+Move forward when the current domain demonstrates:
+
+- Understanding of core concepts
+- Scenario reasoning
+- Troubleshooting ability
+- Ability to explain why alternatives are wrong
+- Ability to connect concepts to hands-on Azure work
+
+Weak areas should return in later sessions through:
+
+Question
+    |
+    v
+Scenario
+    |
+    v
+Troubleshooting
+    |
+    v
+Retest
+
+---
+
+## September 2 Session Result
+
+Today's session completed:
+
+10 questions
+
+Questions:
+
+Q11-Q20
+
+Primary learning themes:
+
+Managed Identity
++
+Key Vault
++
+Storage Data Plane
++
+RBAC
++
+Troubleshooting
+
+The objective remains understanding and reasoning rather than memorization.
