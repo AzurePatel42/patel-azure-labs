@@ -297,3 +297,66 @@ Troubleshoot
 Explain
     +
 Apply
+
+---
+
+## Current Study Status
+
+As of September 5, 2026:
+
+### Identity & Governance
+
+Questions completed:
+
+30 / 30
+
+Completed question sets:
+
+Q1-Q10
+Q11-Q20
+Q21-Q30
+
+Domain status:
+
+COMPLETE
+
+Key areas covered:
+
+- Microsoft Entra ID
+- Azure RBAC
+- RBAC scope and inheritance
+- Least privilege
+- Management plane vs data plane
+- Managed identities
+- System-assigned vs user-assigned identities
+- Key Vault authorization
+- Storage Blob data access
+- Microsoft Entra VM login
+- Authentication vs authorization
+- RBAC troubleshooting
+
+### Current Phase
+
+Phase 1 - Foundation Review
+
+### Next Domain
+
+Storage
+
+### Next Target
+
+Storage Q1-Q10
+
+Previously identified Identity & Governance weak areas will continue to return through scenarios, troubleshooting, and retesting.
+
+The objective remains:
+
+Understand
+    +
+Reason
+    +
+Troubleshoot
+    +
+Explain
+    +
+Apply

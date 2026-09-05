@@ -1,4 +1,4 @@
-﻿# AZ-104 Identity & Governance - Scenarios
+# AZ-104 Identity & Governance - Scenarios
 
 ## Scenario 1 - Resource Management Without Access Management
 
@@ -164,7 +164,7 @@ The user can manage the VM through inherited RBAC permissions.
 Mental Model:
 
 Resource Group assignment
-    ↓
+    ?
 Inherited by contained resources
 
 ---
@@ -183,3 +183,124 @@ Contributor does not include RBAC access-management permissions.
 
 Decision:
 If access management is genuinely part of the job responsibility, use an appropriate access-management role such as User Access Administrator at the smallest required scope.
+
+---
+
+## Scenario 15 - Developers Manage Resources but Not Access
+
+Requirement:
+Developers manage resources in Development but cannot assign RBAC roles.
+
+Decision:
+Contributor at Development scope.
+
+Security team:
+Appropriate access-management role at the required subscription scope.
+
+Key lesson:
+Resource management and access management are separate responsibilities.
+
+---
+
+## Scenario 16 - Blob Download Returns 403
+
+Situation:
+Developer has Contributor but blob download fails.
+
+Reason:
+Blob download is a data-plane operation.
+
+Decision:
+Storage Blob Data Reader for read-only access.
+
+Key lesson:
+Do not confuse Storage Account management with blob data access.
+
+---
+
+## Scenario 17 - Entra ID VM Login
+
+Requirement:
+Developers need normal guest OS login. Administrators need administrative guest OS access.
+
+Decision:
+Virtual Machine User Login for developers.
+
+Virtual Machine Administrator Login for administrators.
+
+Use Entra security groups for centralized assignment.
+
+---
+
+## Scenario 18 - UAMI After App Service Recreation
+
+Situation:
+App Service is deleted and recreated.
+
+The original UAMI still exists.
+
+Problem:
+New App Service receives a Key Vault 403.
+
+Investigation:
+1. Is the UAMI attached?
+2. Is the application using that identity?
+3. Is the principal ID correct?
+4. Does the identity have Key Vault Secrets User or another required role?
+5. Is the scope correct?
+6. Are access model or network restrictions involved?
+
+Key lesson:
+Same application name does not restore identity configuration.
+
+---
+
+## Scenario 19 - Contributor Cannot Assign Reader
+
+Situation:
+Developer has Contributor at resource-group scope.
+
+The developer can manage resources but receives roleAssignments/write when assigning Reader.
+
+Reason:
+Contributor does not contain the required access-management permission.
+
+Decision:
+User Access Administrator if access management is genuinely required.
+
+---
+
+## Scenario 20 - VM Resource Management vs OS Login
+
+Situation:
+Developer has Contributor on a VM but cannot log into the Windows guest OS.
+
+Reason:
+Contributor controls Azure resource management, not guest OS login.
+
+Decision:
+Virtual Machine User Login for normal login.
+
+Key lesson:
+Azure resource permissions and guest OS permissions are different authorization layers.
+
+---
+
+## Scenario 21 - Centralized VM Access Architecture
+
+Requirement:
+90 developers need VM login and 10 administrators need administrative VM login.
+
+Decision:
+Create Entra security groups.
+
+Developer group:
+Virtual Machine User Login
+
+Administrator group:
+Virtual Machine Administrator Login
+
+Do not grant Contributor to developers unless Azure resource management is also required.
+
+Key lesson:
+Assign access based on the exact responsibility.

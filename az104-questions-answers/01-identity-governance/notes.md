@@ -1,4 +1,4 @@
-﻿# AZ-104 Identity & Governance - Notes
+# AZ-104 Identity & Governance - Notes
 
 ## Core Mental Model
 
@@ -27,11 +27,11 @@ Access
 ## Scope Hierarchy
 
 Management Group
-    ↓
+    ?
 Subscription
-    ↓
+    ?
 Resource Group
-    ↓
+    ?
 Resource
 
 Assignments at a parent scope can be inherited by child scopes.
@@ -282,7 +282,7 @@ Do not assign at subscription or storage-account scope when container scope sati
 Role assigned at:
 
 Resource Group
-    ↓
+    ?
 Inherited by resources inside the resource group
 
 Example:
@@ -384,3 +384,194 @@ Role
 Scope
     =
 Effective access
+
+---
+
+# Day 3 - Advanced RBAC, VM Login, and Identity Reasoning
+
+## Resource Management vs Access Management
+
+A critical distinction:
+
+Contributor
+    =
+Manage Azure resources
+
+User Access Administrator
+    =
+Manage Azure access
+
+Owner
+    =
+Manage resources + manage access
+
+A user can have extensive resource-management permissions without having permission to create RBAC assignments.
+
+---
+
+## Management Plane vs Data Plane
+
+Always identify the actual operation.
+
+Management plane examples:
+- Create a Storage Account
+- Configure a Storage Account
+- Create a container
+- Change Azure resource configuration
+
+Data plane examples:
+- Download a blob
+- Read blob contents
+- Write blob data
+
+Therefore:
+
+Contributor
+    !=
+Storage Blob Data Reader
+
+Reader
+    !=
+Storage Blob Data Reader
+
+For blob data access, use the appropriate Storage Blob Data role.
+
+---
+
+## Virtual Machine Resource Access vs Guest OS Login
+
+These are different authorization layers.
+
+Azure resource management:
+    Contributor
+
+Guest OS login:
+    Virtual Machine User Login
+    Virtual Machine Administrator Login
+
+Important interview point:
+
+Contributor on an Azure VM does not automatically grant Windows or Linux guest OS login.
+
+If the requirement is only guest OS login, do not grant Contributor.
+
+---
+
+## Virtual Machine Login Roles
+
+Virtual Machine User Login
+    ->
+Normal guest OS sign-in
+
+Virtual Machine Administrator Login
+    ->
+Administrative guest OS sign-in
+
+Use Microsoft Entra security groups when many users need the same access.
+
+---
+
+## User-Assigned Managed Identity Lifecycle
+
+UAMI
+    =
+Independent Azure resource
+
+App Service
+    =
+Workload resource
+
+Deleting the App Service:
+    does not automatically delete the UAMI
+
+Creating a new App Service:
+    does not automatically attach the old UAMI
+
+Key interview sentence:
+
+"UAMI survives the workload, but the workload does not automatically come back with the UAMI attached."
+
+---
+
+## Authentication vs Authorization
+
+Authentication:
+    Who are you?
+
+Authorization:
+    What are you allowed to do?
+
+Example:
+
+Token acquisition succeeds
+    ->
+Authentication succeeded
+
+Key Vault returns 403
+    ->
+Investigate authorization
+
+Check:
+
+Principal
++
+Role
++
+Scope
++
+Access model
++
+Network restrictions
+
+---
+
+## Advanced Least-Privilege Pattern
+
+Do not start with:
+
+"What powerful role can fix this?"
+
+Start with:
+
+1. Who is the principal?
+2. What exact operation is required?
+3. Is it management plane or data plane?
+4. What permission is required?
+5. Which role contains that permission?
+6. What is the smallest valid scope?
+
+---
+
+## Identity & Governance Architecture Mental Model
+
+                    Azure Access
+                         |
+          +--------------+--------------+
+          |                             |
+    Resource Management             Guest/Data Access
+          |                             |
+     Azure RBAC                 Service-specific roles
+          |                             |
+    Contributor                  Blob Data Reader
+    Reader                       VM User Login
+    Owner                        VM Admin Login
+    UAA                          Key Vault roles
+
+---
+
+## Day 3 Interview Rules
+
+When given an Azure access problem:
+
+Do not immediately increase permissions.
+
+First identify:
+- Principal
+- Operation
+- Authorization layer
+- Required role
+- Scope
+- Inheritance
+- Service-specific access model
+
+Then apply least privilege.

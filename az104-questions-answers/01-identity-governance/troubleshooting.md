@@ -286,3 +286,157 @@ When asked why access is failing, answer in this order:
 8. Check service-specific access controls.
 9. Check network restrictions when relevant.
 10. Apply least privilege rather than increasing permissions blindly.
+
+---
+
+## Problem 9 - Blob Download Returns AuthorizationPermissionMismatch
+
+Symptoms:
+- Contributor on Storage Account
+- Blob download fails
+- Error indicates authorization failure
+
+Diagnosis:
+Blob download is a data-plane operation.
+
+Contributor provides resource-management permissions but does not automatically provide blob data access.
+
+Resolution:
+Assign Storage Blob Data Reader for read-only access.
+
+Use container scope when only one container is required.
+
+---
+
+## Problem 10 - Developer Cannot Sign Into VM
+
+Symptoms:
+- Developer has Contributor on VM
+- VM resource can be managed
+- Guest OS login fails
+
+Diagnosis:
+Contributor does not provide guest OS login.
+
+Resolution:
+Use:
+- Virtual Machine User Login for normal users
+- Virtual Machine Administrator Login for administrators
+
+---
+
+## Problem 11 - UAMI Missing After App Service Recreation
+
+Symptoms:
+- Original App Service worked
+- App Service deleted and recreated
+- Same application name
+- Key Vault returns 403
+
+Diagnosis:
+The new App Service does not automatically inherit the previous UAMI attachment.
+
+Resolution:
+1. Verify UAMI exists.
+2. Verify UAMI is attached to the new App Service.
+3. Verify the application is using the intended identity.
+4. Verify principal/client ID.
+5. Verify Key Vault role.
+6. Verify role scope.
+7. Verify Key Vault access model.
+8. Check network restrictions.
+
+---
+
+## Problem 12 - Contributor Cannot Assign Reader
+
+Error:
+
+Microsoft.Authorization/roleAssignments/write
+
+Diagnosis:
+The caller lacks permission to create an Azure RBAC role assignment.
+
+Contributor:
+    -> Resource management
+
+Access-management role:
+    -> RBAC assignment capability
+
+Resolution:
+Use User Access Administrator when access-management responsibility is genuinely required.
+
+Do not use Owner merely because it is powerful enough to solve the problem.
+
+---
+
+## Problem 13 - VM Access Architecture Is Over-Permissioned
+
+Situation:
+Developers only need guest OS login, but they were given Contributor.
+
+Problem:
+Contributor gives unnecessary Azure resource-management permissions.
+
+Resolution:
+Remove unnecessary Contributor access and assign Virtual Machine User Login at the appropriate scope.
+
+Administrators who require OS administrative access should receive Virtual Machine Administrator Login.
+
+---
+
+## Advanced Troubleshooting Sequence
+
+Access denied
+    |
+    v
+Identify principal
+    |
+    v
+Did authentication succeed?
+    |
+    +-- NO --> Investigate identity/token
+    |
+    +-- YES
+          |
+          v
+    Identify exact operation
+          |
+          v
+    Management plane or data plane?
+          |
+      +---+---+
+      |       |
+Management   Data
+      |       |
+      v       v
+Azure RBAC   Service-specific
+role         data role
+      \       /
+       \     /
+        v   v
+      Verify scope
+          |
+          v
+      Check inheritance
+          |
+          v
+      Check access model
+          |
+          v
+      Check networking
+          |
+          v
+      Apply least privilege
+
+---
+
+## Day 3 Troubleshooting Principle
+
+A 403 does not automatically mean:
+
+"Give the user more permissions."
+
+Instead ask:
+
+"Which exact permission is missing, and where should it be granted?"

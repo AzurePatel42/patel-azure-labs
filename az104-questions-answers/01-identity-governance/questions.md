@@ -1,4 +1,4 @@
-﻿# AZ-104 Identity & Governance - Questions
+# AZ-104 Identity & Governance - Questions
 
 ## Question 1
 What is Microsoft Entra ID, and what problem does it solve?
@@ -157,3 +157,97 @@ A developer has Contributor at resource-group scope and can create, modify, and 
 
 ### SME Answer
 Contributor permits resource management but does not include permission to create Azure RBAC role assignments. Microsoft.Authorization/roleAssignments/write is required for that operation. If the developer genuinely requires access-management responsibility, an appropriate role such as User Access Administrator or Owner should be assigned at the smallest necessary scope.
+
+---
+
+## Question 21
+Three subscriptions exist: Production, Development, and Security. Developers should be able to create and manage resources only in Development, but they must not assign RBAC roles. The Security team manages RBAC across all three subscriptions. What roles and scopes should be used?
+
+### SME Answer
+Assign Contributor to developers at the Development subscription scope. Assign an appropriate access-management role such as User Access Administrator to the Security team at the subscription scope across the required subscriptions. Developers need resource-management capability but not access-management capability. This follows least privilege.
+
+---
+
+## Question 22
+A developer has Contributor on a Production resource group and Reader at subscription scope. The developer can manage the Storage Account but receives AuthorizationPermissionMismatch when downloading a blob. What is the likely cause?
+
+### SME Answer
+Contributor and Reader provide management-plane permissions but do not automatically provide blob data access. Downloading a blob is a data-plane operation. Assign Storage Blob Data Reader at the smallest required scope, such as the required container scope if only one container is needed.
+
+---
+
+## Question 23
+An organization has 50 Azure VMs. Users should sign in to the Windows VMs using Microsoft Entra ID instead of local administrator passwords. VM administrators need administrative OS access, while regular developers need normal OS sign-in. Developers must not receive Azure resource-management permissions. What design should be used?
+
+### SME Answer
+Use Microsoft Entra ID VM login integration. Assign Virtual Machine User Login to regular developers and Virtual Machine Administrator Login to administrators. Use Microsoft Entra security groups for centralized role assignment. Do not use Contributor for developers because Azure resource management and guest OS login are different authorization requirements.
+
+---
+
+## Question 24
+An App Service uses a user-assigned managed identity to read secrets from Key Vault. The App Service is deleted and recreated. The new App Service obtains an Entra token but Key Vault returns 403. What should be investigated?
+
+### SME Answer
+First verify that the original user-assigned managed identity is attached to the recreated App Service and that the application is using the intended identity. Then verify the identity's principal ID, Key Vault data-plane role such as Key Vault Secrets User, assignment scope, Key Vault access-control model, and applicable network restrictions. Successful token acquisition indicates authentication is working; the 403 requires authorization investigation.
+
+---
+
+## Question 25
+An administrator assigns Contributor to a developer at resource-group scope. The developer can start, stop, resize, create, and delete VMs but cannot assign Reader to another user. Why?
+
+### SME Answer
+Contributor provides Azure resource-management permissions but does not include Microsoft.Authorization/roleAssignments/write. Therefore the developer can manage resources but cannot create RBAC role assignments. If access management is genuinely required, User Access Administrator can be assigned at the smallest necessary scope. Owner would provide broader permissions than necessary.
+
+---
+
+## Question 26
+A developer has Contributor on an Azure VM and Reader at subscription scope. The developer can manage the VM resource but cannot sign in to the Windows guest OS using Microsoft Entra ID. Why?
+
+### SME Answer
+Contributor manages the Azure VM resource but does not grant guest OS login. Microsoft Entra VM login requires the appropriate Azure RBAC role: Virtual Machine User Login for normal users or Virtual Machine Administrator Login for administrative OS access.
+
+---
+
+## Question 27
+An App Service has Contributor on a Storage Account but no Storage data-plane role. It can configure the Storage Account and create containers, but downloading a blob returns AuthorizationPermissionMismatch. What role is required?
+
+### SME Answer
+Downloading a blob is a data-plane operation. Contributor provides resource-management permissions but does not automatically provide blob data access. Assign Storage Blob Data Reader for read-only blob access. If access is needed only to one container, assign the role at that container scope.
+
+---
+
+## Question 28
+A developer has Contributor on rg-development and Reader at subscription scope. The developer attempts to assign Reader to another user on rg-development and receives AuthorizationFailed. What permission is missing?
+
+### SME Answer
+The developer lacks Microsoft.Authorization/roleAssignments/write. Contributor allows resource management but does not include Azure RBAC access-management permissions. If the developer genuinely needs to assign roles, User Access Administrator can be assigned at resource-group scope rather than granting broader Owner access.
+
+---
+
+## Question 29
+An App Service uses a user-assigned managed identity named app-prod-identity. The original App Service is deleted. A new App Service with the same application name is created, and the developer says the existing UAMI should automatically be attached because it has the same name. Is that correct?
+
+### SME Answer
+No. A user-assigned managed identity has an independent lifecycle and survives deletion of the App Service, but the new App Service does not automatically have that identity attached. Verify the UAMI attachment first, then verify the identity's principal/client ID and its RBAC permissions and scope. The name of the App Service does not prove that the same identity configuration was restored.
+
+---
+
+## Question 30
+An organization has 100 Azure VMs, 90 developers, and 10 administrators. Developers need to sign in to the guest OS but must not manage Azure VM resources. Administrators need administrative OS access. Security wants centralized access management. What architecture should be used?
+
+### SME Answer
+Use Microsoft Entra security groups with Azure RBAC. Assign Virtual Machine User Login to the developer group and Virtual Machine Administrator Login to the administrator group at the appropriate VM or resource-group scope. Do not give developers Contributor because they only require guest OS login, not Azure resource management.
+
+Mental model:
+
+Azure VM
+    |
+    +-- Azure Resource Management
+    |       |
+    |       +-- Contributor
+    |       +-- Start / Stop / Resize / Delete
+    |
+    +-- Guest OS Login
+            |
+            +-- Virtual Machine User Login
+            +-- Virtual Machine Administrator Login

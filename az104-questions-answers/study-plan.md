@@ -354,3 +354,158 @@ RBAC
 Troubleshooting
 
 The objective remains understanding and reasoning rather than memorization.
+
+---
+
+# Current Progress - September 5, 2026
+
+## Identity & Governance
+
+Questions completed:
+
+30 / 30
+
+Question sets:
+
+Q1-Q10
+    ->
+Completed September 1
+
+Q11-Q20
+    ->
+Completed September 2
+
+Q21-Q30
+    ->
+Completed September 5
+
+Domain status:
+
+COMPLETE
+
+---
+
+## Q21-Q30 Learning Results
+
+The advanced Identity & Governance set reinforced:
+
+- Subscription-level RBAC design
+- Resource management vs access management
+- Management plane vs data plane
+- Storage Blob Data Reader
+- Microsoft Entra VM login
+- Virtual Machine User Login
+- Virtual Machine Administrator Login
+- User-assigned managed identity lifecycle
+- Recreated App Service identity attachment
+- Key Vault 403 authorization troubleshooting
+- RBAC inheritance
+- Least-privilege architecture
+- Group-based access management
+
+---
+
+## Important Weak Areas Identified
+
+### Q23 - VM Guest OS Login
+
+Correction:
+
+Contributor manages the Azure VM resource but does not grant guest OS login.
+
+Use:
+
+Virtual Machine User Login
+or
+Virtual Machine Administrator Login
+
+depending on the required OS privilege.
+
+---
+
+### Q29 - User-Assigned Managed Identity Lifecycle
+
+Correction:
+
+A user-assigned managed identity survives deletion of the workload that uses it.
+
+However, recreating the workload does not automatically attach the existing UAMI.
+
+Key interview sentence:
+
+"UAMI survives the workload, but the workload does not automatically come back with the UAMI attached."
+
+---
+
+## Current Next Target
+
+Storage Q1-Q10
+
+The Identity & Governance foundation is complete.
+
+The next major domain is Storage.
+
+---
+
+## Storage Learning Approach
+
+Storage will follow the same progression:
+
+Q1-Q10
+    ->
+Foundation
+
+Q11-Q20
+    ->
+Intermediate
+
+Q21-Q30
+    ->
+Advanced / SME
+
+Then:
+
+Scenario
+    ->
+Troubleshooting
+    ->
+Retest
+
+The existing hands-on Storage labs will be connected to the question sets whenever applicable.
+
+---
+
+## September 5 Session Result
+
+Questions completed:
+
+Q21-Q30
+
+Scores:
+
+Q21 - 9/10
+Q22 - 9/10
+Q23 - 4/10
+Q24 - 8/10
+Q25 - 8.5/10
+Q26 - 8/10
+Q27 - 8.5/10
+Q28 - 9.5/10
+Q29 - 7/10
+Q30 - 9/10
+
+Primary learning themes:
+
+Advanced RBAC
++
+VM Login
++
+Managed Identity Lifecycle
++
+Key Vault Authorization
++
+Storage Data Plane
++
+Least Privilege
+
+Identity & Governance is now complete at the foundation level.
