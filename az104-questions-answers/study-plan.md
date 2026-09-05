@@ -509,3 +509,100 @@ Storage Data Plane
 Least Privilege
 
 Identity & Governance is now complete at the foundation level.
+
+# Current Progress - September 5, 2026
+
+## Identity & Governance
+
+Questions completed:
+
+30 / 30
+
+Status:
+
+Foundation COMPLETE
+
+## Storage
+
+Questions completed:
+
+10 / 30
+
+Question set:
+
+Q1-Q10
+
+Status:
+
+Foundation COMPLETE
+
+### Storage Q1-Q10 Learning Results
+
+The first Storage foundation set reinforced:
+
+- Storage Account architecture
+- Blob Storage and unstructured data
+- Blob containers
+- Storage Blob Data Reader
+- Management plane vs data plane
+- Least-privilege RBAC
+- Storage redundancy
+- LRS / ZRS / GRS / GZRS
+- Blob access tiers
+- Hot / Cool / Cold / Archive
+- Lifecycle Management
+- Storage troubleshooting
+
+### Storage Learning Pattern
+
+Access pattern
+    |
+    v
+Storage tier
+    |
+    v
+Lifecycle policy
+    |
+    v
+Redundancy requirement
+    |
+    v
+RBAC / data-plane authorization
+    |
+    v
+Troubleshooting
+
+### Storage Q1-Q10 Results
+
+Q1 - 6/10
+Q2 - 9/10
+Q3 - 9/10
+Q4 - 9.5/10
+Q5 - 6.5/10
+Q6 - 10/10
+Q7 - 10/10
+Q8 - 9/10
+Q9 - 10/10
+Q10 - 10/10
+
+### Current Next Target
+
+Storage Q11-Q20
+
+Storage will continue through:
+
+Q11-Q20
+    ->
+Intermediate
+
+Q21-Q30
+    ->
+Advanced / SME
+
+Then:
+
+Scenario
+    ->
+Troubleshooting
+    ->
+Retest

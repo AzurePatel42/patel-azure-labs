@@ -15,7 +15,7 @@ Daily target:
 | Domain | Questions | Scenarios | Troubleshooting | Confidence | Status |
 |---|---:|---:|---:|---|---|
 | Identity & Governance | 30 | 4 | 4 | Strong Developing | COMPLETE |
-| Storage | 0 | 0 | 0 | Not assessed | PENDING |
+| Storage | 10 | 10 | 6 | Strong Developing | FOUNDATION COMPLETE |
 | Compute | 0 | 0 | 0 | Not assessed | PENDING |
 | Networking | 0 | 0 | 0 | Not assessed | PENDING |
 | Monitoring | 0 | 0 | 0 | Not assessed | PENDING |
@@ -180,7 +180,7 @@ Questions completed:
 
 Current next target:
 
-Storage Q1-Q10
+Storage Q11-Q20
 
 Identity & Governance foundation is complete. The next objective is Storage.
 
@@ -207,3 +207,61 @@ Communicate clearly
 Connect theory to hands-on experience
 
 That creates durable Azure engineering knowledge.
+
+# September 5, 2026 - Storage Foundation
+
+## Storage Q1-Q10
+
+Questions completed:
+
+10 / 10
+
+Domain status:
+
+FOUNDATION COMPLETE
+
+Session scores:
+
+- Q1 - 6/10
+- Q2 - 9/10
+- Q3 - 9/10
+- Q4 - 9.5/10
+- Q5 - 6.5/10
+- Q6 - 10/10
+- Q7 - 10/10
+- Q8 - 9/10
+- Q9 - 10/10
+- Q10 - 10/10
+
+Primary learning themes:
+
+- Storage Account hierarchy
+- Blob Storage
+- Blob containers
+- Storage Blob Data Reader
+- Management plane vs data plane
+- Least-privilege RBAC
+- LRS / ZRS / GRS / GZRS
+- Blob access tiers
+- Hot / Cool / Cold / Archive
+- Blob Lifecycle Management
+- Storage troubleshooting
+
+Key corrections reinforced:
+
+1. Container organizes blobs, not arbitrary Azure resources.
+2. ZRS protects against availability-zone failure but not a complete regional outage.
+3. GZRS provides zone + geo redundancy.
+4. Reader is management-plane access and does not grant blob-data access.
+5. Storage Blob Data Reader provides read access to blob contents.
+6. Lifecycle Management can automate tier transitions and deletion.
+
+Current Next Target:
+
+Storage Q11-Q20
+
+Storage progression:
+
+Q1-Q10  -> Foundation COMPLETE
+Q11-Q20 -> Intermediate
+Q21-Q30 -> Advanced / SME

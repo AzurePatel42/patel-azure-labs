@@ -360,3 +360,66 @@ Troubleshoot
 Explain
     +
 Apply
+
+# Current Study Status - September 5, 2026
+
+## Identity & Governance
+
+Questions completed:
+
+30 / 30
+
+Domain status:
+
+COMPLETE
+
+## Storage
+
+Questions completed:
+
+10 / 30
+
+Completed question set:
+
+Q1-Q10
+
+Domain status:
+
+FOUNDATION COMPLETE
+
+Key areas covered:
+
+- Storage Accounts
+- Blob Storage
+- Blob containers
+- Storage Blob Data Reader
+- Management plane vs data plane
+- Least privilege
+- Storage redundancy
+- Blob access tiers
+- Lifecycle Management
+- Storage troubleshooting
+
+Current phase:
+
+Phase 1 - Foundation Review
+
+Current target:
+
+Storage Q11-Q20
+
+The Storage foundation is complete. The next objective is the Intermediate Storage question set.
+
+Previously identified weak concepts will continue to return through scenarios, troubleshooting, and retesting.
+
+The objective remains:
+
+Understand
+    +
+Reason
+    +
+Troubleshoot
+    +
+Explain
+    +
+Apply
