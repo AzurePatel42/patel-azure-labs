@@ -1,6 +1,6 @@
-# AZ-104 Storage — Scenarios Q1–Q10
+# AZ-104 Storage â€” Scenarios Q1â€“Q10
 
-## Scenario 1 — Choosing Blob Storage
+## Scenario 1 â€” Choosing Blob Storage
 
 Requirement:
 Store images and PDFs.
@@ -12,7 +12,7 @@ Reason:
 Images and PDFs are unstructured/object data.
 
 
-## Scenario 2 — Organizing Customer Data
+## Scenario 2 â€” Organizing Customer Data
 
 Requirement:
 Separate blobs for customer-a, customer-b, and customer-c.
@@ -28,7 +28,7 @@ Storage Account
   +-- customer-c
 
 
-## Scenario 3 — Read-Only Blob Access
+## Scenario 3 â€” Read-Only Blob Access
 
 Requirement:
 Developer can download blobs but cannot modify or delete them.
@@ -43,7 +43,7 @@ Reason:
 Least privilege + data-plane read access.
 
 
-## Scenario 4 — Zone Failure
+## Scenario 4 â€” Zone Failure
 
 Requirement:
 Protect storage from an availability-zone failure.
@@ -55,7 +55,7 @@ Reason:
 Data is replicated across availability zones within the primary region.
 
 
-## Scenario 5 — Regional Failure
+## Scenario 5 â€” Regional Failure
 
 Requirement:
 Protect storage from an Azure regional outage.
@@ -68,7 +68,7 @@ When both zone and regional resilience are required:
 GZRS.
 
 
-## Scenario 6 — Frequently Accessed Data
+## Scenario 6 â€” Frequently Accessed Data
 
 Requirement:
 Application frequently reads blobs.
@@ -80,7 +80,7 @@ Reason:
 The access pattern is frequent.
 
 
-## Scenario 7 — Changing Access Pattern
+## Scenario 7 â€” Changing Access Pattern
 
 Requirement:
 Data is frequently accessed initially but becomes less frequently accessed over time.
@@ -93,7 +93,7 @@ Example:
 Hot ? Cool ? Archive
 
 
-## Scenario 8 — Retention Policy
+## Scenario 8 â€” Retention Policy
 
 Requirement:
 Invoices must eventually be deleted after 7 years.
@@ -106,7 +106,7 @@ Example:
 Hot ? Cool ? Archive ? Delete
 
 
-## Scenario 9 — Management vs Data Plane
+## Scenario 9 â€” Management vs Data Plane
 
 Requirement:
 Developer can see the Storage Account but cannot download blobs.
@@ -121,7 +121,7 @@ Solution:
 Assign Storage Blob Data Reader for blob data access.
 
 
-## Scenario 10 — Least Privilege Design
+## Scenario 10 â€” Least Privilege Design
 
 Requirement:
 Developer needs read-only access to one customer container.
@@ -138,3 +138,190 @@ Scope:
 customer-a container
 
 Avoid unnecessarily granting access at the entire Storage Account scope.
+## Scenario 11 â€” Azure Workload Without Stored Credentials
+
+Requirement:
+An Azure application needs to access Blob Storage without storing a storage key, password, or other secret.
+
+Decision:
+Use Managed Identity with Microsoft Entra ID and Azure RBAC.
+
+Example:
+
+Application
+  +-- Managed Identity
+       +-- Microsoft Entra ID
+            +-- Storage Blob Data Reader
+
+Reason:
+Managed Identity allows the Azure workload to authenticate without storing application credentials.
+
+
+## Scenario 12 â€” Automatic Tier Transition
+
+Requirement:
+Blobs are frequently accessed for the first 30 days and then become infrequently accessed.
+
+Decision:
+Use Lifecycle Management.
+
+Example:
+
+Hot
+  ? after 30 days
+Cool
+
+Reason:
+Lifecycle Management automatically changes the blob access tier based on conditions such as blob age.
+
+
+## Scenario 13 â€” Availability-Zone Protection
+
+Requirement:
+Storage must remain resilient if an entire availability zone fails. Regional outage protection is not required.
+
+Decision:
+Use ZRS.
+
+Reason:
+ZRS replicates data across availability zones within the primary Azure region.
+
+
+## Scenario 14 â€” Application Upload and Read Access
+
+Requirement:
+An application must upload and read invoice blobs in customer-a but does not need access to other containers.
+
+Decision:
+Storage Blob Data Contributor.
+
+Scope:
+customer-a container.
+
+Reason:
+The role provides the required data-plane read/write/delete permissions while keeping access limited to the required container.
+
+
+## Scenario 15 â€” Long-Term Invoice Lifecycle
+
+Requirement:
+Invoices are frequently accessed for 30 days, rarely accessed after 30 days, almost never accessed after 180 days, and must be deleted after 7 years.
+
+Decision:
+Use Lifecycle Management.
+
+Example:
+
+Hot
+  ? 30 days
+Cool
+  ? 180 days
+Archive
+  ? 7 years
+Delete
+
+Reason:
+The lifecycle policy automatically transitions data through appropriate storage tiers and eventually deletes it according to the retention requirement.
+
+
+## Scenario 16 â€” VM Accessing Blob Storage
+
+Requirement:
+An Azure VM needs to read blobs without storing a storage key or SAS token in application configuration.
+
+Decision:
+Use the VM's Managed Identity with Storage Blob Data Reader.
+
+Scope:
+Required container.
+
+Reason:
+Managed Identity provides authentication through Microsoft Entra ID, while Azure RBAC provides authorization.
+
+
+## Scenario 17 â€” Read Access but Delete Fails
+
+Requirement:
+A developer can download blobs but receives HTTP 403 when attempting to delete them.
+
+Existing role:
+Storage Blob Data Reader.
+
+Problem:
+Storage Blob Data Reader provides read-only blob data access.
+
+Solution:
+Use Storage Blob Data Contributor when read, write, and delete operations are required.
+
+Scope:
+Required container.
+
+Reason:
+The existing role authorizes reading but not deleting.
+
+
+## Scenario 18 â€” Temporary External Blob Access
+
+Requirement:
+An external customer needs to download one specific blob for 24 hours. The customer must not receive the Storage Account key.
+
+Decision:
+Use a SAS token.
+
+Configuration:
+
+- Specific blob scope
+- Read permission only
+- 24-hour expiration
+
+Reason:
+SAS provides delegated and time-limited access without exposing the Storage Account key.
+
+Important:
+SAS permissions are not Azure RBAC roles.
+
+
+## Scenario 19 â€” Legacy Shared File System
+
+Requirement:
+A legacy application running on multiple Azure VMs expects a traditional shared file-system path such as `\\server\share\file.txt`.
+
+Decision:
+Use Azure Files.
+
+Reason:
+Azure Files provides managed file shares and supports protocols such as SMB, making it appropriate for applications expecting traditional file-share access.
+
+
+## Scenario 20 â€” 403 AuthorizationPermissionMismatch
+
+Requirement:
+An application successfully authenticates using Managed Identity but receives `403 AuthorizationPermissionMismatch` when uploading a blob.
+
+Existing role:
+Storage Blob Data Reader.
+
+Scope:
+Required container.
+
+Problem:
+Authentication is successful, but the assigned data-plane role does not permit blob uploads.
+
+Solution:
+Use Storage Blob Data Contributor at the required scope.
+
+Troubleshooting model:
+
+Authentication
+  +-- Managed Identity
+       +-- SUCCESS
+
+Authorization
+  +-- Storage Blob Data Reader
+       +-- Upload denied
+
+Fix:
+Storage Blob Data Contributor.
+
+Reason:
+A valid identity does not automatically have permission to perform every storage operation.

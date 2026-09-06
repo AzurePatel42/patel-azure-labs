@@ -1,4 +1,4 @@
-# AZ-104 Storage � Notes
+# AZ-104 Storage — Notes
 
 ## 1. Storage Hierarchy
 
@@ -85,7 +85,7 @@ Used for accessing blob data.
 
 Critical troubleshooting rule:
 
-Reader ? permission to read blob contents.
+Reader ≠ permission to read blob contents.
 
 
 ## 6. RBAC Mental Model
@@ -189,3 +189,307 @@ Automates tier transitions and deletion.
 
 GZRS:
 Protects against zone failure and regional failure.
+## 13. Managed Identity
+
+Managed Identity allows an Azure resource such as a VM or App Service to authenticate to Azure services without storing application credentials.
+
+Mental model:
+
+Azure Application
+  |
+  +-- Managed Identity
+          |
+          +-- Microsoft Entra ID
+                  |
+                  +-- Azure RBAC
+                          |
+                          +-- Storage Blob Data Reader
+
+
+Important:
+
+Managed Identity handles authentication.
+
+Azure RBAC determines authorization.
+
+
+## 14. Authentication vs Authorization
+
+Authentication answers:
+
+"Who are you?"
+
+Example:
+
+Managed Identity
+  |
+  +-- Microsoft Entra ID
+  |
+  +-- Identity established
+
+
+Authorization answers:
+
+"What are you allowed to do?"
+
+Example:
+
+Managed Identity
+  |
+  +-- Storage Blob Data Reader
+  |
+  +-- Read blob data
+
+
+Mental model:
+
+Authentication = identity
+
+Authorization = permissions
+
+
+## 15. Managed Identity vs SAS
+
+Managed Identity:
+
+- Identity-based authentication
+- Uses Microsoft Entra ID
+- Works with Azure RBAC
+- Avoids storing application secrets
+- Appropriate for Azure workloads accessing Azure resources
+
+
+SAS:
+
+- Delegated access mechanism
+- Can be limited by scope
+- Can specify permissions
+- Can have an expiration time
+- Useful for temporary or external access
+
+
+Example:
+
+Managed Identity
+  =
+Azure workload accessing Azure resource
+
+
+SAS
+  =
+Temporary delegated access to specific data
+
+
+Critical distinction:
+
+SAS permissions are not Azure RBAC roles.
+
+
+## 16. Key Vault vs Managed Identity
+
+Azure Key Vault is designed to securely store and manage secrets, keys, and certificates.
+
+Managed Identity can eliminate the need for an application to store a secret in the first place.
+
+Example:
+
+Secret-based approach:
+
+Application
+  |
+  +-- Secret
+        |
+        +-- Key Vault
+              |
+              +-- Storage access
+
+
+Managed Identity approach:
+
+Application
+  |
+  +-- Managed Identity
+          |
+          +-- Microsoft Entra ID
+                  |
+                  +-- Azure RBAC
+                          |
+                          +-- Storage
+
+
+Key idea:
+
+If an Azure workload can use Managed Identity directly, do not introduce a stored secret unnecessarily.
+
+
+## 17. Blob Data RBAC Roles
+
+Storage Blob Data Reader:
+
+- Read blob data
+- Download blobs
+- Does not provide write or delete permissions
+
+
+Storage Blob Data Contributor:
+
+- Read blob data
+- Write blob data
+- Delete blob data
+
+
+Mental model:
+
+Storage Blob Data Reader
+  |
+  +-- Read
+
+
+Storage Blob Data Contributor
+  |
+  +-- Read
+  +-- Write
+  +-- Delete
+
+
+Use the least-privilege role required by the workload.
+
+
+## 18. SAS Permission Model
+
+SAS does not use Azure RBAC role names.
+
+Instead, a SAS can define delegated permissions such as:
+
+- Read
+- Write
+- Delete
+
+A SAS can also define:
+
+- Resource scope
+- Start time
+- Expiration time
+
+Example:
+
+External Customer
+  |
+  +-- SAS
+        |
+        +-- Specific Blob
+              |
+              +-- Read
+              +-- 24-hour expiration
+
+
+This is different from:
+
+Microsoft Entra ID
+  |
+  +-- RBAC Role
+        |
+        +-- Storage Blob Data Reader
+
+
+## 19. AuthorizationPermissionMismatch
+
+A successful authentication does not guarantee that an operation is authorized.
+
+Example:
+
+Application
+  |
+  +-- Managed Identity
+          |
+          +-- Authentication SUCCESS
+                  |
+                  +-- Storage Blob Data Reader
+                          |
+                          +-- Upload
+                                |
+                                +-- 403 AuthorizationPermissionMismatch
+
+
+The identity is valid, but the assigned data-plane role does not allow the requested operation.
+
+For blob upload, use:
+
+Storage Blob Data Contributor
+
+at the required scope.
+
+
+Troubleshooting sequence:
+
+1. Verify authentication.
+2. Verify the assigned data-plane role.
+3. Verify the RBAC scope.
+4. Verify the requested operation is allowed by the role.
+5. Check for other authorization or network restrictions.
+
+
+## 20. Azure Files vs Blob Storage
+
+Azure Blob Storage:
+
+- Object storage
+- Designed for unstructured data
+- Images, PDFs, videos, backups, logs
+- Accessed as blobs
+
+
+Azure Files:
+
+- Managed file shares
+- Shared file-system access
+- Supports protocols such as SMB
+- Useful for applications expecting traditional file-share paths
+
+
+Mental model:
+
+Blob
+  =
+Object
+
+
+Azure Files
+  =
+File share
+
+
+## 21. Storage Q11-Q20 Core Mental Model
+
+Azure workload
+  |
+  +-- Authentication
+  |      |
+  |      +-- Managed Identity
+  |             |
+  |             +-- Microsoft Entra ID
+  |
+  +-- Authorization
+  |      |
+  |      +-- Azure RBAC
+  |             |
+  |             +-- Storage Blob Data Reader
+  |             +-- Storage Blob Data Contributor
+  |
+  +-- Temporary delegated access
+         |
+         +-- SAS
+
+Key troubleshooting distinction:
+
+Valid identity ≠ permission to perform every operation.
+
+A 403 authorization error requires checking:
+
+Identity
+  +
+Role
+  +
+Scope
+  +
+Requested operation

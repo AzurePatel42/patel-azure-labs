@@ -606,3 +606,69 @@ Scenario
 Troubleshooting
     ->
 Retest
+---
+
+# Current Study Status - September 6, 2026
+
+## Completed
+
+### Identity & Governance
+
+30 / 30
+
+Status:
+
+COMPLETE
+
+### Storage
+
+20 / 30
+
+Completed:
+
+- Q1-Q10 — Foundation
+- Q11-Q20 — Intermediate
+
+Q11-Q20 average:
+
+88%
+
+Combined Storage Q1-Q20:
+
+88.5%
+
+## Next Target
+
+Storage Q21-Q30
+
+Focus:
+
+- Advanced Storage scenarios
+- Architecture decisions
+- Troubleshooting
+- Security and authorization
+- Redundancy and recovery
+- Performance and cost trade-offs
+
+## Storage Weak-Area Reinforcement
+
+The following concepts require repetition during Q21-Q30 and later retesting:
+
+1. Managed Identity vs SAS
+2. Managed Identity vs Key Vault / stored secrets
+3. SAS permissions vs RBAC roles
+4. Authentication vs authorization
+5. ZRS vs GZRS failure domains
+
+Learning progression remains:
+
+Question
+  |
+  v
+Scenario
+  |
+  v
+Troubleshooting
+  |
+  v
+Retest

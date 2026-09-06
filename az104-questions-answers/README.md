@@ -168,10 +168,10 @@ Each session is recorded by date.
 Example:
 
 10-daily-sessions/
-└── 2026-09/
-    ├── 2026-09-01.md
-    ├── 2026-09-02.md
-    └── ...
+â””â”€â”€ 2026-09/
+    â”œâ”€â”€ 2026-09-01.md
+    â”œâ”€â”€ 2026-09-02.md
+    â””â”€â”€ ...
 45-Minute Daily Structure
 10 minutes
 Recall + previous mistakes
@@ -243,19 +243,19 @@ Azure concepts can be explained in interview language.
 Hands-on experience can be connected to real projects.
 Repository Structure
 az104-questions-answers/
-├── 01-identity-governance/
-├── 02-storage/
-├── 03-compute/
-├── 04-networking/
-├── 05-monitoring/
-├── 06-cross-domain-scenarios/
-├── 07-interview-mode/
-├── 08-mock-exams/
-├── 09-weak-areas/
-├── 10-daily-sessions/
-├── README.md
-├── study-plan.md
-└── progress-tracker.md
+â”œâ”€â”€ 01-identity-governance/
+â”œâ”€â”€ 02-storage/
+â”œâ”€â”€ 03-compute/
+â”œâ”€â”€ 04-networking/
+â”œâ”€â”€ 05-monitoring/
+â”œâ”€â”€ 06-cross-domain-scenarios/
+â”œâ”€â”€ 07-interview-mode/
+â”œâ”€â”€ 08-mock-exams/
+â”œâ”€â”€ 09-weak-areas/
+â”œâ”€â”€ 10-daily-sessions/
+â”œâ”€â”€ README.md
+â”œâ”€â”€ study-plan.md
+â””â”€â”€ progress-tracker.md
 ---
 
 ## Current Study Status
@@ -423,3 +423,85 @@ Troubleshoot
 Explain
     +
 Apply
+---
+
+# Current Study Status - September 6, 2026
+
+## Identity & Governance
+
+Questions completed:
+
+30 / 30
+
+Status:
+
+COMPLETE
+
+## Storage
+
+Questions completed:
+
+20 / 30
+
+Current completed sets:
+
+- Q1-Q10 — Foundation
+- Q11-Q20 — Intermediate
+
+Current target:
+
+Q21-Q30 — Advanced / SME
+
+Storage Q11-Q20 score:
+
+88%
+
+Combined Storage Q1-Q20:
+
+88.5%
+
+### Current Storage Learning Focus
+
+- Managed Identity
+- Microsoft Entra ID
+- Authentication vs authorization
+- Azure RBAC
+- Storage Blob Data Reader
+- Storage Blob Data Contributor
+- SAS delegated access
+- SAS vs RBAC
+- Key Vault vs Managed Identity
+- Azure Files vs Blob Storage
+- Lifecycle Management
+- Storage redundancy
+- AuthorizationPermissionMismatch troubleshooting
+
+### Current Weak Areas
+
+- Managed Identity vs SAS
+- Managed Identity vs stored secrets / Key Vault
+- SAS permissions vs RBAC roles
+
+Previously identified Identity & Governance weak areas continue to return through scenarios, troubleshooting, and retesting.
+
+### Current Progression
+
+Storage Q1-Q10
+  ->
+Foundation
+
+Storage Q11-Q20
+  ->
+Intermediate COMPLETE
+
+Storage Q21-Q30
+  ->
+Advanced / SME
+
+Then:
+
+Scenario
+  ->
+Troubleshooting
+  ->
+Retest

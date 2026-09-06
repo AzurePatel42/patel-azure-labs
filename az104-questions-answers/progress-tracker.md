@@ -15,7 +15,7 @@ Daily target:
 | Domain | Questions | Scenarios | Troubleshooting | Confidence | Status |
 |---|---:|---:|---:|---|---|
 | Identity & Governance | 30 | 4 | 4 | Strong Developing | COMPLETE |
-| Storage | 10 | 10 | 6 | Strong Developing | FOUNDATION COMPLETE |
+| Storage | 20 | 20 | 18 | Strong Developing | IN PROGRESS |
 | Compute | 0 | 0 | 0 | Not assessed | PENDING |
 | Networking | 0 | 0 | 0 | Not assessed | PENDING |
 | Monitoring | 0 | 0 | 0 | Not assessed | PENDING |
@@ -142,7 +142,7 @@ Questions that should return during future sessions:
 | Domain | Initial Confidence | Current Confidence | Target |
 |---|---|---|---|
 | Identity & Governance | Not assessed | Strong Developing | Interview-ready |
-| Storage | Not assessed | Not assessed | Interview-ready |
+| Storage | Not assessed | Strong Developing | Interview-ready |
 | Compute | Not assessed | Not assessed | Interview-ready |
 | Networking | Not assessed | Not assessed | Interview-ready |
 | Monitoring | Not assessed | Not assessed | Interview-ready |
@@ -258,10 +258,106 @@ Key corrections reinforced:
 
 Current Next Target:
 
-Storage Q11-Q20
+Storage Q21-Q30
 
 Storage progression:
 
 Q1-Q10  -> Foundation COMPLETE
 Q11-Q20 -> Intermediate
 Q21-Q30 -> Advanced / SME
+---
+
+# September 6, 2026 - Storage Q11-Q20
+
+## Storage Q11-Q20
+
+Questions completed:
+
+20 / 30
+
+Session scores:
+
+- Q11 - 4/10
+- Q12 - 10/10
+- Q13 - 10/10
+- Q14 - 10/10
+- Q15 - 10/10
+- Q16 - 6/10
+- Q17 - 10/10
+- Q18 - 8/10
+- Q19 - 10/10
+- Q20 - 10/10
+
+Average:
+
+88%
+
+Combined Storage Q1-Q20:
+
+88.5%
+
+### Primary Learning Themes
+
+- Managed Identity
+- Microsoft Entra ID authentication
+- Azure RBAC authorization
+- Authentication vs authorization
+- SAS delegated access
+- SAS permissions vs RBAC roles
+- Key Vault vs Managed Identity
+- Storage Blob Data Reader
+- Storage Blob Data Contributor
+- Container-level least privilege
+- Azure Files vs Blob Storage
+- AuthorizationPermissionMismatch troubleshooting
+
+### Weak Areas Identified
+
+1. Managed Identity vs SAS
+2. Managed Identity vs storing secrets in Key Vault
+3. SAS permissions vs Azure RBAC roles
+
+### Key Corrections
+
+1. Managed Identity is preferred for Azure workloads when supported because it avoids storing application credentials.
+2. Key Vault securely stores secrets; it does not eliminate the secret itself.
+3. SAS provides delegated, time-limited access and does not use RBAC role names.
+4. Storage Blob Data Reader allows read access but not blob upload or deletion.
+5. Storage Blob Data Contributor allows read, write, and delete blob data.
+6. Authentication success does not guarantee authorization for the requested operation.
+
+### Current Position
+
+Identity & Governance:
+
+30 / 30 - COMPLETE
+
+Storage:
+
+20 / 30 - IN PROGRESS
+
+Next target:
+
+Storage Q21-Q30
+
+Progression:
+
+Q1-Q10
+  ->
+Foundation
+
+Q11-Q20
+  ->
+Intermediate COMPLETE
+
+Q21-Q30
+  ->
+Advanced / SME
+
+Then:
+
+Scenario
+  ->
+Troubleshooting
+  ->
+Retest
