@@ -433,3 +433,238 @@ Key troubleshooting rule:
 
 403 AuthorizationPermissionMismatch
   -> Check data-plane permissions and RBAC role/scope.
+## Q21 - Storage Account Security
+
+### Question
+A company stores sensitive customer documents in Azure Blob Storage. Applications authenticate using Microsoft Entra ID. Storage Account access keys must not be used. Developers need to manage blobs in one specific container but must not access other containers.
+
+What authentication and authorization approach would you implement, and at what scope?
+
+### Answer
+Use Microsoft Entra ID with a security group for the developers and assign the Storage Blob Data Contributor role at the required container scope.
+
+For an Azure application, use Managed Identity with Microsoft Entra ID and assign the minimum required data-plane RBAC role.
+
+Key principle:
+
+Authentication = Microsoft Entra ID / Managed Identity
+Authorization = Azure RBAC
+Scope = required container only
+
+
+## Q22 - GZRS for Zone and Regional Protection
+
+### Question
+An application requires protection from both an availability-zone failure and a complete Azure region failure. Which storage redundancy option should be used, and why is it better than ZRS alone?
+
+### Answer
+Use Geo-Zone-Redundant Storage (GZRS).
+
+GZRS provides zone redundancy in the primary region and geo-replication to a secondary region.
+
+ZRS protects against an availability-zone failure within the primary region but does not provide protection against a complete regional outage.
+
+Mental model:
+
+ZRS = zone resilience
+GZRS = zone + regional resilience
+
+
+## Q23 - Managed Identity Reader Cannot Upload
+
+### Question
+An App Service uses a system-assigned managed identity. Authentication succeeds, but uploading a PDF returns 403 AuthorizationPermissionMismatch. The identity has Storage Blob Data Reader at the correct container scope.
+
+Why does the upload fail and what should be changed?
+
+### Answer
+Authentication is working, but authorization does not allow the required operation.
+
+Storage Blob Data Reader permits reading blob data but does not permit uploading.
+
+Replace the Reader role with Storage Blob Data Contributor at the required container scope.
+
+Management-plane roleAssignment/write permission is not the permission that allows the application to upload blob data.
+
+
+## Q24 - Private Endpoint vs NSG
+
+### Question
+A Storage Account must not be accessible from the public internet. An application inside a VNet needs private connectivity to the Storage Account while continuing to use Microsoft Entra ID and RBAC.
+
+Which networking feature should be used?
+
+### Answer
+Use an Azure Private Endpoint.
+
+A Private Endpoint provides a private IP address for the Storage service inside the VNet.
+
+Network security and identity authorization remain separate:
+
+Private Endpoint = private network connectivity
+Microsoft Entra ID / Managed Identity = authentication
+Azure RBAC = authorization
+
+
+## Q25 - Access Key vs Managed Identity
+
+### Question
+A production application asks for the Storage Account access key because it is easier than configuring Managed Identity and RBAC. Would you approve the request?
+
+### Answer
+No.
+
+For an Azure-hosted application, prefer Managed Identity with Microsoft Entra ID and Azure RBAC.
+
+This avoids storing long-lived access keys and allows permissions to be limited to the required data and scope.
+
+SAS is useful when temporary or delegated access is required, but it is not the default replacement for Managed Identity in this scenario.
+
+
+## Q26 - Private Endpoint vs Service Endpoint
+
+### Question
+An App Service needs private connectivity to a Storage Account. Public network access must be disabled, and the Storage Account should have a private IP reachable from the VNet.
+
+Would you use a Private Endpoint or Service Endpoint?
+
+### Answer
+Use a Private Endpoint.
+
+Private Endpoint provides a private IP address in the VNet for access to the Storage service.
+
+Authentication and authorization remain separate and continue to use Managed Identity, Microsoft Entra ID, and Azure RBAC.
+
+Mental model:
+
+Private Endpoint = how traffic reaches the service
+RBAC = what the identity can do
+
+
+## Q27 - GRS vs RA-GRS vs Failover
+
+### Question
+A Storage Account uses GRS. The primary region experiences an outage. The application team expects the secondary region to automatically become writable. Is this correct?
+
+### Answer
+No.
+
+GRS provides geo-replication to a secondary region, but the secondary is not automatically the active writable endpoint.
+
+RA-GRS provides read access to the secondary endpoint.
+
+A storage account failover operation is required to promote the secondary to the primary.
+
+Mental model:
+
+GRS = geo-replicated secondary
+RA-GRS = secondary can also be read
+Failover = secondary becomes primary
+
+
+## Q28 - Private Endpoint 403 Troubleshooting
+
+### Question
+An application previously uploaded blobs successfully. After a Private Endpoint was configured and public network access was disabled, uploads begin returning 403 errors. Managed Identity and Storage Blob Data Contributor at container scope are already verified.
+
+What should be investigated next?
+
+### Answer
+Investigate the network and DNS path first.
+
+Recommended sequence:
+
+1. Verify Private Endpoint connection status.
+2. Verify private DNS configuration.
+3. Verify the Storage hostname resolves to the expected private IP.
+4. Verify VNet connectivity from the application.
+5. Verify Storage networking configuration.
+6. Re-check RBAC after network configuration is confirmed.
+
+The recent Private Endpoint change is the strongest troubleshooting clue.
+
+
+## Q29 - Blob Lifecycle Design
+
+### Question
+Invoice data is frequently accessed for 30 days, occasionally accessed from day 31 through day 180, almost never accessed after day 180, must be retained for 7 years, and then automatically deleted.
+
+Design the lifecycle policy.
+
+### Answer
+Use Azure Storage Lifecycle Management.
+
+Lifecycle:
+
+Hot
+  |
+  | after 30 days
+  v
+Cool
+  |
+  | after 180 days
+  v
+Archive
+  |
+  | after 7 years
+  v
+Delete
+
+The policy matches the data access pattern and retention requirement.
+
+
+## Q30 - Complete Storage Security Architecture
+
+### Question
+An App Service uses a system-assigned managed identity and VNet Integration to access a Storage Account through a Private Endpoint. Public network access is disabled.
+
+The application must upload and read invoices. Developers need read-only access to the invoices container. No Storage Account access keys may be used.
+
+Design the complete security model.
+
+### Answer
+Application authentication:
+
+Microsoft Entra ID through the App Service system-assigned Managed Identity.
+
+Application authorization:
+
+Storage Blob Data Contributor at the invoices container scope.
+
+Developer authorization:
+
+Storage Blob Data Reader at the invoices container scope.
+
+Network security:
+
+Azure Private Endpoint with public network access disabled.
+
+Least privilege:
+
+The application receives only the data-plane permissions required to read and upload blobs, and only within the invoices container. Developers receive read-only access at the same container scope.
+
+Complete model:
+
+App Service
+  |
+  +-- System-Assigned Managed Identity
+  |
+  +-- Microsoft Entra ID
+  |
+  +-- Storage Blob Data Contributor
+  |       |
+  |       +-- invoices container
+  |
+  +-- Developers Security Group
+          |
+          +-- Storage Blob Data Reader
+                  |
+                  +-- invoices container
+
+Network:
+
+App Service VNet Integration
+  |
+  +-- Private Endpoint
+          |
+          +-- Storage Account

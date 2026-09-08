@@ -15,7 +15,7 @@ Daily target:
 | Domain | Questions | Scenarios | Troubleshooting | Confidence | Status |
 |---|---:|---:|---:|---|---|
 | Identity & Governance | 30 | 4 | 4 | Strong Developing | COMPLETE |
-| Storage | 20 | 20 | 18 | Strong Developing | IN PROGRESS |
+| Storage | 30 | 30 | 30 | Strong Developing | COMPLETE |
 | Compute | 0 | 0 | 0 | Not assessed | PENDING |
 | Networking | 0 | 0 | 0 | Not assessed | PENDING |
 | Monitoring | 0 | 0 | 0 | Not assessed | PENDING |
@@ -154,7 +154,7 @@ Questions that should return during future sessions:
 - [x] Start daily 45-minute sessions
 - [x] Complete first 20 Identity & Governance questions
 - [x] Complete Identity & Governance 30-question foundation
-- [ ] Complete Storage question foundation
+- [x] Complete Storage question foundation
 - [ ] Complete Compute question foundation
 - [ ] Complete Networking question foundation
 - [ ] Complete Monitoring question foundation
@@ -356,6 +356,119 @@ Advanced / SME
 
 Then:
 
+Scenario
+  ->
+Troubleshooting
+  ->
+Retest
+
+---
+
+# September 7, 2026 - Storage Q21-Q30
+
+## Storage Q21-Q30
+
+Questions completed:
+
+30 / 30
+
+Session scores:
+
+- Q21 - 8.5/10
+- Q22 - 8.5/10
+- Q23 - 7/10
+- Q24 - 5.5/10
+- Q25 - 6/10
+- Q26 - 9/10
+- Q27 - 7.5/10
+- Q28 - 6/10
+- Q29 - 10/10
+- Q30 - 7.5/10
+
+Average:
+
+75%
+
+Combined Storage Q1-Q30:
+
+84%
+
+### Primary Learning Themes
+
+- Managed Identity vs SAS
+- Managed Identity vs Key Vault
+- Management plane vs data plane
+- Storage Blob Data Reader vs Storage Blob Data Contributor
+- RBAC role selection
+- Container-level RBAC scope
+- Private Endpoint
+- Private Endpoint vs Service Endpoint
+- Private Endpoint vs NSG
+- Private DNS
+- GRS vs RA-GRS vs failover
+- GZRS
+- Storage networking troubleshooting
+- Layered Storage security architecture
+- Blob Lifecycle Management
+
+### Storage Weak Areas
+
+1. Managed Identity vs SAS
+2. Managed Identity vs Key Vault
+3. Management plane vs data plane
+4. Private Endpoint vs NSG
+5. GRS vs RA-GRS vs failover
+6. Private Endpoint DNS troubleshooting
+7. Selecting the correct Storage Blob Data role
+8. Separating authentication, authorization, scope, and network layers
+
+### Key Corrections
+
+1. Managed Identity + Microsoft Entra ID + Azure RBAC is preferred for Azure-hosted applications when supported.
+2. SAS is appropriate for temporary or delegated access.
+3. Key Vault stores secrets; using Key Vault still means the application is using a secret.
+4. Management-plane permissions do not automatically authorize blob data operations.
+5. Storage Blob Data Reader provides blob-data read access.
+6. Storage Blob Data Contributor provides blob-data read, write, and delete access.
+7. Private Endpoint provides private connectivity; it does not replace authentication or authorization.
+8. Private DNS is critical when using Private Endpoint with public access disabled.
+9. GRS provides geo-replication; RA-GRS adds read access to the secondary.
+10. Failover promotes the secondary to the primary.
+11. GZRS combines zone redundancy with geo-replication.
+12. A 403 after a Private Endpoint change should prompt investigation of the network and DNS path when RBAC has already been verified.
+
+### Current Position
+
+Identity & Governance:
+
+30 / 30 - COMPLETE
+
+Storage:
+
+30 / 30 - COMPLETE
+
+Next target:
+
+Compute module review before Compute Q1-Q30
+
+Progression:
+
+Identity & Governance
+  ->
+30 Questions COMPLETE
+
+Storage
+  ->
+30 Questions COMPLETE
+
+Compute
+  ->
+Review AZ-104 Compute lab/module
+
+Then:
+
+Compute Q1-Q30
+  ->
 Scenario
   ->
 Troubleshooting

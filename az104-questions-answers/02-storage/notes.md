@@ -493,3 +493,453 @@ Role
 Scope
   +
 Requested operation
+---
+
+# Advanced Storage Notes - Q21-Q30
+
+## 12. Managed Identity + Storage RBAC
+
+For an Azure-hosted application that needs to access Blob Storage:
+
+Application
+    |
+    +-- Managed Identity
+            |
+            v
+      Microsoft Entra ID
+            |
+            v
+       Azure RBAC
+            |
+            v
+      Blob Storage
+
+Authentication:
+- Managed Identity
+- Microsoft Entra ID
+
+Authorization:
+- Azure RBAC
+- Storage Blob Data roles
+
+Avoid storing Storage Account access keys in the application when Managed Identity can be used.
+
+---
+
+## 13. Storage Blob Data Roles
+
+### Storage Blob Data Reader
+
+Allows read access to blob data.
+
+Use when:
+- Application only needs to read blobs
+- Developer needs read-only access
+- Service should not modify data
+
+### Storage Blob Data Contributor
+
+Allows applications or users to read, write, and delete blob data.
+
+Use when:
+- Application uploads blobs
+- Application modifies blobs
+- Application deletes blobs
+
+Mental model:
+
+Read only
+    |
+    +-- Storage Blob Data Reader
+
+Read + Write + Delete
+    |
+    +-- Storage Blob Data Contributor
+
+---
+
+## 14. Management Plane vs Data Plane - Advanced
+
+Management plane examples:
+- Create Storage Account
+- Change Storage Account configuration
+- Configure networking
+- Assign RBAC roles
+
+Data plane examples:
+- Upload blob
+- Download blob
+- Delete blob
+- Read blob contents
+
+Important:
+
+Reader
+    |
+    +-- Can view Azure resource metadata
+    |
+    +-- Does NOT automatically allow blob data access
+
+For blob contents:
+
+- Storage Blob Data Reader
+- Storage Blob Data Contributor
+
+---
+
+## 15. RBAC Scope and Least Privilege
+
+RBAC access should be granted at the narrowest practical scope.
+
+Example:
+
+Storage Account
+    |
+    +-- invoices
+    |
+    +-- reports
+    |
+    +-- images
+
+If a developer only needs access to invoices:
+
+Developer
+    |
+    +-- Storage Blob Data Reader
+            |
+            +-- invoices container
+
+Do not grant Storage Account-wide access when container-level access is sufficient.
+
+Mental model:
+
+Principal + Role + Scope = Effective Access
+
+---
+
+## 16. Managed Identity vs SAS
+
+Managed Identity is preferred for Azure-hosted applications when supported.
+
+Managed Identity:
+
+Azure Application
+    |
+    +-- Managed Identity
+            |
+            +-- Entra ID
+                    |
+                    +-- RBAC
+
+SAS is useful for:
+- Temporary access
+- Delegated access
+- External users or applications
+- Specific resource access
+- Limited permissions
+- Limited lifetime
+
+Mental model:
+
+Managed Identity
+    =
+Application identity
+
+SAS
+    =
+Delegated temporary access
+
+---
+
+## 17. Storage Account Keys vs Managed Identity
+
+Storage Account access keys provide broad access to the Storage Account.
+
+For Azure-hosted applications, prefer:
+
+Managed Identity
+    +
+Microsoft Entra ID
+    +
+Azure RBAC
+
+This avoids distributing long-lived storage credentials.
+
+If an application asks for an access key, first determine whether Managed Identity can satisfy the requirement.
+
+---
+
+## 18. Private Endpoint
+
+A Private Endpoint provides private connectivity to an Azure service.
+
+For Storage:
+
+VNet
+  |
+  +-- Private Endpoint
+          |
+          +-- Private IP
+                  |
+                  v
+             Storage Account
+
+Private Endpoint is primarily a networking feature.
+
+It does not replace authentication or authorization.
+
+Complete model:
+
+Private Endpoint
+    =
+Network connectivity
+
+Managed Identity / Entra ID
+    =
+Authentication
+
+Azure RBAC
+    =
+Authorization
+
+---
+
+## 19. Private Endpoint vs Service Endpoint
+
+Private Endpoint:
+- Provides a private IP address in the VNet
+- Used for private connectivity
+- Can support disabling public network access
+
+Service Endpoint:
+- Provides optimized connectivity from a VNet to an Azure service
+- Does not provide a private IP for the service in the VNet
+
+When the requirement specifically says:
+
+"Storage must have a private IP reachable from the VNet"
+
+choose:
+
+Private Endpoint
+
+---
+
+## 20. Private DNS with Private Endpoint
+
+A Private Endpoint requires correct name resolution for reliable application connectivity.
+
+The application normally connects using the Storage hostname.
+
+The hostname should resolve through private DNS to the Private Endpoint IP.
+
+Application
+    |
+    v
+Storage hostname
+    |
+    v
+Private DNS
+    |
+    v
+Private Endpoint IP
+    |
+    v
+Storage Account
+
+If DNS resolves to the public endpoint when public access has been disabled, the application may fail even when RBAC is correct.
+
+---
+
+## 21. NSG vs Private Endpoint
+
+Do not confuse Network Security Groups with Private Endpoints.
+
+NSG:
+- Controls network traffic
+- Applies network security rules
+
+Private Endpoint:
+- Provides private connectivity to an Azure service
+
+Mental model:
+
+NSG
+    =
+Traffic control
+
+Private Endpoint
+    =
+Private service connectivity
+
+If the requirement is:
+
+"Storage must not be reachable through the public internet and must have a private IP in the VNet"
+
+the key feature is:
+
+Private Endpoint
+
+---
+
+## 22. GRS vs RA-GRS vs Failover
+
+GRS:
+- Provides geo-replication to a secondary region.
+
+RA-GRS:
+- Provides geo-replication
+- Provides read access to the secondary endpoint
+
+Failover:
+- Promotes the secondary region to the primary region
+
+Mental model:
+
+GRS
+    =
+Geo-replicated secondary
+
+RA-GRS
+    =
+Geo-replicated secondary + read access
+
+Failover
+    =
+Secondary becomes primary
+
+Do not assume the secondary automatically becomes writable simply because GRS is configured.
+
+---
+
+## 23. GZRS
+
+GZRS combines zone redundancy with geo-replication.
+
+Primary Region
+    |
+    +-- Zone 1
+    +-- Zone 2
+    +-- Zone 3
+    |
+    +-------- Geo-replication -------->
+                                      Secondary Region
+
+GZRS is appropriate when both are important:
+
+- Protection from availability-zone failure
+- Protection from regional failure
+
+Compare:
+
+ZRS
+    =
+Zone redundancy
+
+GRS
+    =
+Geo-redundancy
+
+GZRS
+    =
+Zone + geo-redundancy
+
+---
+
+## 24. Storage Network + Identity Layers
+
+Storage security should be evaluated in separate layers.
+
+Layer 1 - Network
+    |
+    +-- Public access
+    +-- Private Endpoint
+    +-- VNet connectivity
+    +-- DNS
+
+Layer 2 - Authentication
+    |
+    +-- Managed Identity
+    +-- Microsoft Entra ID
+
+Layer 3 - Authorization
+    |
+    +-- Azure RBAC
+    +-- Storage Blob Data roles
+
+Layer 4 - Scope
+    |
+    +-- Container
+    +-- Storage Account
+
+Layer 5 - Data Lifecycle
+    |
+    +-- Hot
+    +-- Cool
+    +-- Archive
+    +-- Delete
+
+This layered model is useful for both architecture and troubleshooting.
+
+---
+
+## 25. Complete Storage Security Mental Model
+
+A secure Azure application accessing Storage can look like:
+
+App Service
+    |
+    +-- System-Assigned Managed Identity
+    |
+    +-- Microsoft Entra ID
+    |
+    +-- Storage Blob Data Contributor
+    |       |
+    |       +-- invoices container
+    |
+    +-- VNet Integration
+            |
+            +-- Private Endpoint
+                    |
+                    +-- Storage Account
+
+Developers:
+
+Developer Security Group
+    |
+    +-- Storage Blob Data Reader
+            |
+            +-- invoices container
+
+Network:
+
+Public network access = Disabled
+
+Security principle:
+
+Private network
+    +
+Strong identity
+    +
+Least-privilege authorization
+    +
+Narrow RBAC scope
+
+---
+
+## 26. Storage Advanced Decision Framework
+
+When given a Storage scenario, ask these questions in order:
+
+1. What data is being stored?
+2. How frequently is it accessed?
+3. What retention period is required?
+4. What redundancy is required?
+5. How will the application authenticate?
+6. What data-plane permissions are required?
+7. What RBAC scope is appropriate?
+8. Does the service require private networking?
+9. Is Private Endpoint required?
+10. How will failures be diagnosed?
+
+This turns Storage questions into an engineering decision process instead of memorization.
