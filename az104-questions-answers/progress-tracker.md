@@ -16,7 +16,7 @@ Daily target:
 |---|---:|---:|---:|---|---|
 | Identity & Governance | 30 | 4 | 4 | Strong Developing | COMPLETE |
 | Storage | 30 | 30 | 30 | Strong Developing | COMPLETE |
-| Compute | 0 | 0 | 0 | Not assessed | PENDING |
+| Compute | 10 | 0 | 0 | Not assessed | IN PROGRESS |
 | Networking | 0 | 0 | 0 | Not assessed | PENDING |
 | Monitoring | 0 | 0 | 0 | Not assessed | PENDING |
 | Cross-Domain | 0 | 0 | 0 | Not assessed | PENDING |
@@ -468,6 +468,167 @@ Review AZ-104 Compute lab/module
 Then:
 
 Compute Q1-Q30
+  ->
+Scenario
+  ->
+Troubleshooting
+  ->
+Retest
+
+
+# September 9, 2026 - Compute Q1-Q10
+
+## Compute Q1-Q10
+
+Questions completed:
+
+10 / 30
+
+Domain status:
+
+FOUNDATION IN PROGRESS
+
+Average score:
+
+77.5%
+
+### Session Scores
+
+- Q1 - 8/10
+- Q2 - 9/10
+- Q3 - 4/10
+- Q4 - 8/10
+- Q5 - 6/10
+- Q6 - 8.5/10
+- Q7 - 9/10
+- Q8 - 9/10
+- Q9 - 7.5/10
+- Q10 - 8.5/10
+
+### Primary Learning Themes
+
+- Azure Virtual Machines
+- IaaS and VM decision-making
+- Virtual Machine Scale Sets
+- Autoscaling
+- Load Balancer
+- Health probes
+- Windows RDP vs Linux SSH
+- Azure RBAC vs guest OS permissions
+- Managed Disks
+- Temporary Disk
+- Availability Sets
+- Availability Zones
+- Storage redundancy vs VM availability
+- Key Vault and Managed Identity
+- Azure Monitor and VM troubleshooting
+- Compute architecture decision-making
+
+### Compute Weak Areas
+
+1. RDP vs SSH
+2. Azure RBAC vs guest OS permissions
+3. Availability Sets vs Availability Zones
+4. Storage redundancy vs VM availability
+5. Scaling vs availability
+6. Load Balancer vs VMSS responsibilities
+7. VM running vs application healthy
+8. Azure Monitor troubleshooting beyond CPU
+
+### Key Corrections
+
+1. Windows Server remote administration normally uses RDP over TCP 3389; SSH over TCP 22 is normally associated with Linux administration.
+2. Azure RBAC controls Azure resource management; guest OS permissions control what the administrator can do inside the operating system.
+3. Availability Sets and Availability Zones provide compute availability; ZRS is a storage redundancy mechanism.
+4. Scaling addresses changing workload capacity; availability addresses resilience to failures.
+5. Load Balancer distributes traffic and uses health probes; VMSS manages the VM instances and scaling.
+6. A VM being running does not guarantee that the application inside it is healthy.
+7. Temporary Disk is non-persistent and should not be used for durable database data.
+8. Managed Disks provide persistent storage for VM workloads.
+9. Key Vault provides secure secret storage; Managed Identity provides workload identity for accessing Azure resources.
+10. VM troubleshooting should investigate CPU, memory, disk I/O, network, application health, and dependencies rather than assuming CPU is the bottleneck.
+11. For stronger compute fault isolation, Availability Zones should be considered when the workload and region support them.
+12. Multiple healthy instances, appropriate failure-domain placement, Load Balancing, and autoscaling solve different parts of a resilient compute architecture.
+
+### Compute Scenario Coverage
+
+10 scenarios completed.
+
+Primary scenario areas:
+
+- Selecting Azure VM for full OS control
+- Selecting VMSS for variable workload
+- Windows remote administration
+- Persistent application storage
+- Infrastructure failure
+- Application health detection
+- Database persistence
+- Application secrets
+- VM performance investigation
+- Production VMSS architecture
+
+### Compute Troubleshooting Coverage
+
+10 troubleshooting patterns completed.
+
+Primary troubleshooting areas:
+
+- RDP vs SSH
+- Azure RBAC vs guest OS permissions
+- Storage redundancy vs compute availability
+- Availability vs scaling
+- VMSS vs Load Balancer responsibilities
+- VM running vs application healthy
+- Temporary Disk vs persistent storage
+- Key Vault vs configuration files
+- Low CPU but slow application
+- VMSS availability architecture
+
+### Current Compute Position
+
+Compute Q1-Q10:
+
+10 / 30 - COMPLETE
+
+Compute Q11-Q20:
+
+PENDING
+
+Compute Q21-Q30:
+
+PENDING
+
+Current average:
+
+77.5%
+
+Current priority:
+
+Review the AZ-104 Compute module and labs, then reinforce the identified weak areas before continuing with Q11-Q20.
+
+### Progression
+
+Identity & Governance
+  ->
+30 Questions COMPLETE
+
+Storage
+  ->
+30 Questions COMPLETE
+
+Compute
+  ->
+10 Questions COMPLETE
+
+Then:
+
+Compute module/lab review
+  ->
+Weak-area reinforcement
+  ->
+Compute Q11-Q20
+  ->
+Compute Q21-Q30
   ->
 Scenario
   ->
