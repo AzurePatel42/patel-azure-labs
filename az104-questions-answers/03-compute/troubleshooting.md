@@ -434,3 +434,249 @@ What failed?
 10. Use evidence and metrics before changing infrastructure.
 
 The objective is to identify the failing layer instead of randomly changing Azure settings.
+
+---
+
+# Q11-Q20 Troubleshooting Patterns
+
+## Troubleshooting Pattern 11 - Wrong Solution for CPU/RAM Shortage
+
+### Symptom
+
+A VM needs more CPU and memory.
+
+### Common Mistake
+
+Adding a managed data disk.
+
+### Diagnosis
+
+Disks provide storage, not VM CPU or RAM.
+
+### Correct Direction
+
+Resize the VM to an appropriate SKU.
+
+### Rule
+
+CPU/RAM problem
+    |
+    v
+VM Size
+
+Storage problem
+    |
+    v
+Managed Disk
+
+---
+
+## Troubleshooting Pattern 12 - Disk Expanded but OS Still Shows Old Capacity
+
+### Symptom
+
+Azure reports a larger managed disk, but the guest OS does not show the expected usable capacity.
+
+### Diagnosis
+
+The Azure disk capacity was increased, but the guest partition/filesystem may still need to be extended.
+
+### Rule
+
+Azure disk expansion
+    |
+    v
+Check guest OS
+    |
+    v
+Extend partition/filesystem if required
+
+---
+
+## Troubleshooting Pattern 13 - Using Temporary Disk for Persistent Data
+
+### Symptom
+
+Database or business data is stored on the temporary disk.
+
+### Diagnosis
+
+Temporary storage is not intended for durable data.
+
+### Correct Direction
+
+Use persistent managed data disks.
+
+---
+
+## Troubleshooting Pattern 14 - Using RDP When Run Command Is Appropriate
+
+### Symptom
+
+An administrator only needs to execute a command inside a VM but proposes opening inbound RDP.
+
+### Diagnosis
+
+Interactive remote administration is unnecessary for a simple command execution task.
+
+### Correct Direction
+
+Consider Azure Run Command.
+
+### Rule
+
+Command execution requirement
+    |
+    v
+Run Command
+
+Interactive Windows administration
+    |
+    v
+RDP
+
+Interactive Linux administration
+    |
+    v
+SSH
+
+---
+
+## Troubleshooting Pattern 15 - Confusing Managed Disk and Snapshot
+
+### Symptom
+
+An engineer refers to a snapshot as the VM's active storage.
+
+### Diagnosis
+
+A snapshot is a point-in-time copy of disk state.
+
+### Correct Direction
+
+Managed Disk
+    |
+    +-- Active persistent storage
+
+Snapshot
+    |
+    +-- Point-in-time copy
+
+---
+
+## Troubleshooting Pattern 16 - Wrong Recovery Mechanism
+
+### Symptom
+
+An engineer chooses an Availability Set for a regional disaster.
+
+### Diagnosis
+
+Availability Sets address VM distribution across fault and update domains within a region.
+
+### Correct Direction
+
+For regional disaster recovery, use an appropriate disaster-recovery architecture such as Azure Site Recovery.
+
+### Rule
+
+Infrastructure failure domain
+    |
+    +-- Availability Set / Zone
+
+Regional disaster
+    |
+    +-- Disaster Recovery
+
+---
+
+# Q11-Q20 Troubleshooting Checklist
+
+When troubleshooting an Azure VM:
+
+### 1. Compute
+
+Check:
+
+- VM size
+- vCPU
+- RAM
+- CPU utilization
+- Memory pressure
+
+### 2. Storage
+
+Check:
+
+- OS disk
+- Data disks
+- Disk capacity
+- Disk I/O
+- Disk latency
+- Temporary disk usage
+
+### 3. Guest OS
+
+Check:
+
+- Partition size
+- Filesystem capacity
+- Services
+- Application processes
+
+### 4. Remote Administration
+
+Ask:
+
+- Windows or Linux?
+- Interactive session required?
+- Simple command execution?
+
+Then select:
+
+- RDP
+- SSH
+- Run Command
+
+### 5. Availability
+
+Identify the failure domain:
+
+- VM/hardware
+- Maintenance
+- Zone
+- Region
+
+### 6. Recovery
+
+Select the mechanism appropriate to the failure scope.
+
+---
+
+# Q11-Q20 Debugging Lessons
+
+The major debugging lesson from this question block is:
+
+Do not solve an Azure problem by looking only at the resource named in the question.
+
+Instead:
+
+Requirement
+    |
+    v
+Failure / constraint
+    |
+    v
+Identify layer
+    |
+    +-- Compute
+    +-- Storage
+    +-- Guest OS
+    +-- Network
+    +-- Availability
+    +-- Disaster Recovery
+    |
+    v
+Choose the Azure capability that solves that specific problem.
+
+This is the preferred Compute troubleshooting mindset going forward.

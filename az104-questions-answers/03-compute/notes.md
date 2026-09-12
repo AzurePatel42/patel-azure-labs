@@ -604,3 +604,235 @@ Monitoring
     +-- Network
 
 The objective is to select each component based on the requirement it solves.
+
+---
+
+# 17. Compute Weakness Reinforcement — Q11-Q20
+
+## VM Sizing
+
+VM CPU and RAM capacity are determined by the selected VM size/SKU.
+
+Think:
+
+VM Size
+    |
+    +-- vCPU
+    +-- RAM
+    +-- Performance characteristics
+
+Adding a data disk does not increase CPU or RAM.
+
+### Engineering Decision
+
+If CPU or RAM capacity is insufficient:
+
+Resize the VM.
+
+Consider:
+
+- Cost
+- SKU availability
+- Supported VM family
+- Downtime/deallocation requirements
+- Application requirements
+
+---
+
+## Disk Capacity vs VM Capacity
+
+Separate compute capacity from storage capacity.
+
+Compute:
+
+VM Size
+    |
+    +-- CPU
+    +-- RAM
+
+Storage:
+
+Managed Disks
+    |
+    +-- OS Disk
+    +-- Data Disk
+    +-- Temporary Disk
+
+A disk cannot be used to solve a CPU or RAM shortage.
+
+---
+
+## OS Disk vs Data Disk
+
+OS disk:
+
+- Contains the operating system
+- Persistent
+
+Data disk:
+
+- Intended for persistent application data
+- Can be attached independently of the OS disk
+
+Temporary disk:
+
+- Temporary/non-persistent
+- Appropriate for scratch data and cache
+
+Mental model:
+
+CPU/RAM problem
+    |
+    +-- VM Size
+
+Storage problem
+    |
+    +-- Managed Disk
+
+Temporary workload
+    |
+    +-- Temporary Disk
+
+---
+
+## Disk Expansion
+
+When a managed disk is expanded:
+
+Azure disk capacity
+    |
+    v
+Guest OS
+    |
+    v
+Partition/filesystem may need extension
+
+Therefore:
+
+Azure-side capacity increase
+    !=
+Automatically usable filesystem capacity in every guest OS scenario
+
+---
+
+## Azure Run Command
+
+Run Command provides a way to execute scripts or commands inside the guest operating system without relying on inbound RDP or SSH.
+
+Mental model:
+
+Azure management
+    |
+    v
+Run Command
+    |
+    v
+Guest OS
+    |
+    v
+Command / Script
+
+This is different from remote interactive administration through:
+
+- RDP
+- SSH
+
+---
+
+## Managed Disk vs Snapshot
+
+Managed Disk:
+
+- Active persistent block storage
+- Used by VMs
+
+Snapshot:
+
+- Point-in-time copy of disk state
+- Can be used as a source for creating another managed disk
+
+Mental model:
+
+Managed Disk
+    |
+    | snapshot
+    v
+Point-in-time copy
+
+Do not automatically equate a snapshot with a complete backup strategy.
+
+---
+
+## Availability and Recovery Layers
+
+Availability Set:
+
+- Fault domains
+- Update domains
+- Helps reduce impact from hardware failures and planned maintenance
+
+Availability Zone:
+
+- Physically separate zone within a region
+- Stronger infrastructure isolation
+
+Site Recovery:
+
+- Disaster recovery
+- Regional failover scenarios
+
+Mental model:
+
+Hardware / maintenance
+        |
+        v
+Availability Set
+
+Zone-level failure
+        |
+        v
+Availability Zone architecture
+
+Regional disaster
+        |
+        v
+Site Recovery
+
+---
+
+## Compute Q11-Q20 Reinforcement Rules
+
+1. CPU/RAM shortages require VM sizing decisions.
+2. Storage shortages require disk decisions.
+3. A data disk does not provide additional CPU or RAM.
+4. Temporary disk is not durable application storage.
+5. Azure disk expansion may require guest OS partition/filesystem expansion.
+6. Run Command is for executing commands inside the guest OS without inbound RDP/SSH.
+7. Managed Disk is active persistent storage.
+8. Snapshot is a point-in-time disk copy.
+9. Availability Sets and Availability Zones protect against different infrastructure failure patterns.
+10. Site Recovery addresses disaster recovery rather than ordinary VM availability.
+
+---
+
+# Compute Learning Baseline — Q1-Q20
+
+Q1-Q10:
+
+77.5%
+
+Q11-Q20:
+
+72%
+
+The Q11-Q20 cycle exposed a recurring pattern:
+
+Architectural reasoning
+    |
+    +-- Strong
+
+Detailed Compute mechanics
+    |
+    +-- Needs reinforcement
+
+The next Compute review should target the detailed mechanics before advancing to more complex scenarios.

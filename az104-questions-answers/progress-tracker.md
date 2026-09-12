@@ -16,7 +16,7 @@ Daily target:
 |---|---:|---:|---:|---|---|
 | Identity & Governance | 30 | 4 | 4 | Strong Developing | COMPLETE |
 | Storage | 30 | 30 | 30 | Strong Developing | COMPLETE |
-| Compute | 10 | 0 | 0 | Not assessed | IN PROGRESS |
+| Compute | 20 | 0 | 0 | Developing | IN PROGRESS |
 | Networking | 0 | 0 | 0 | Not assessed | PENDING |
 | Monitoring | 0 | 0 | 0 | Not assessed | PENDING |
 | Cross-Domain | 0 | 0 | 0 | Not assessed | PENDING |
@@ -143,7 +143,7 @@ Questions that should return during future sessions:
 |---|---|---|---|
 | Identity & Governance | Not assessed | Strong Developing | Interview-ready |
 | Storage | Not assessed | Strong Developing | Interview-ready |
-| Compute | Not assessed | Not assessed | Interview-ready |
+| Compute | Not assessed | Developing | Interview-ready |
 | Networking | Not assessed | Not assessed | Interview-ready |
 | Monitoring | Not assessed | Not assessed | Interview-ready |
 
@@ -635,3 +635,119 @@ Scenario
 Troubleshooting
   ->
 Retest
+
+---
+
+# September 12, 2026 - Compute Q11-Q20
+
+## Compute Q11-Q20
+
+Questions completed:
+
+10 / 30 additional questions
+
+Session score:
+
+72%
+
+Cumulative Compute progress:
+
+20 / 30 questions complete
+
+Cumulative Compute average:
+
+74.75%
+
+### Primary Learning Themes
+
+- VM sizing and CPU/RAM capacity
+- Managed disk capacity and disk management
+- OS disk vs data disk vs Temporary Disk
+- VMSS autoscaling
+- Availability Sets vs Availability Zones
+- Azure Run Command
+- Managed Disks vs snapshots
+- Regional disaster recovery with Azure Site Recovery
+- Scaling vs availability vs disaster recovery
+
+### Compute Weak Areas
+
+1. VM sizing and SKU selection
+2. CPU/RAM capacity vs storage capacity
+3. Disk expansion and guest OS filesystem considerations
+4. Azure Run Command and guest OS command execution
+5. Managed Disk vs Snapshot distinction
+6. Availability architecture vs regional disaster recovery
+
+### Strong Areas Reinforced
+
+1. VMSS and autoscaling
+2. Managed Disks
+3. Availability Zones
+4. Azure Site Recovery
+5. Compute architecture decision-making
+
+### Key Corrections
+
+1. Increasing CPU or RAM requires changing the VM size/SKU, not adding a managed data disk.
+2. Managed disks provide persistent storage capacity; they do not increase VM CPU or RAM.
+3. Disk expansion may require extending the partition/filesystem inside the guest OS.
+4. VMSS provides centralized management of multiple VM instances and supports autoscaling.
+5. Availability Sets use fault domains and update domains, while Availability Zones provide stronger physical fault isolation.
+6. Azure Run Command executes commands inside a VM without requiring inbound RDP or SSH access.
+7. Managed Disks are persistent storage resources; snapshots are point-in-time copies used as a source for creating disks.
+8. Azure Site Recovery addresses regional disaster recovery and failover rather than ordinary VM availability.
+9. Scaling handles changing workload capacity; availability handles resilience to failures; disaster recovery handles larger failure events such as regional outages.
+
+### Scenario Coverage
+
+Q11-Q20 scenario reinforcement documented.
+
+Primary scenario areas:
+
+- VM sizing
+- Disk capacity and management
+- VMSS autoscaling
+- Availability Sets
+- Availability Zones
+- Run Command
+- Snapshots
+- Regional disaster recovery
+
+### Troubleshooting Coverage
+
+Q11-Q20 troubleshooting patterns documented.
+
+Primary troubleshooting areas:
+
+- VM CPU/RAM vs storage bottlenecks
+- Disk capacity and expansion
+- Run Command vs RDP/SSH
+- Managed Disk vs Snapshot
+- Availability vs disaster recovery
+- VMSS scaling behavior
+
+### Session Assessment
+
+Compute Q11-Q20 exposed a second layer of weaknesses: the architectural concepts are becoming stronger, but detailed Azure Compute mechanics still require reinforcement.
+
+The main learning pattern is:
+
+> Capacity -> Storage -> Availability -> Scaling -> Recovery
+
+The next Compute cycle should continue testing these distinctions under scenario pressure.
+
+### Next Target
+
+Compute Q21-Q30
+
+Before starting Q21-Q30, reinforce:
+
+- VM sizing/SKU selection
+- Disk management
+- Azure Run Command
+- Managed Disk vs Snapshot
+- Availability Set vs Zone
+- Availability vs Disaster Recovery
+
+---

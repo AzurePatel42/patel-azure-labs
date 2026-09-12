@@ -454,3 +454,167 @@ Performance Problem?
     +-- Investigate Network
 
 The objective is to select the Azure capability that solves the specific requirement.
+
+---
+
+# Q11-Q20 Scenario Reinforcement
+
+## Scenario 11 - VM Has Insufficient CPU and RAM
+
+### Requirement
+
+A VM is consistently CPU constrained and does not have enough memory.
+
+### Decision
+
+Resize the VM to a larger appropriate SKU.
+
+### Do Not Do
+
+Do not add a data disk to solve CPU/RAM capacity.
+
+### Lesson
+
+VM SKU determines compute capacity.
+
+---
+
+## Scenario 12 - VM Runs Out of Storage
+
+### Requirement
+
+Application storage is full.
+
+### Decision
+
+Either:
+
+- Expand an existing managed disk
+- Attach an additional managed data disk
+
+Then verify guest OS partition/filesystem capacity.
+
+### Lesson
+
+Azure disk capacity and guest OS filesystem capacity are related but separate considerations.
+
+---
+
+## Scenario 13 - Variable Web Workload
+
+### Requirement
+
+Traffic is very high during the day and very low overnight.
+
+### Decision
+
+VMSS + autoscaling.
+
+### Lesson
+
+Scale out/in based on workload rather than permanently provisioning maximum capacity.
+
+---
+
+## Scenario 14 - Physical Host Problem
+
+### Requirement
+
+The application should reduce the impact of physical infrastructure failure and planned maintenance.
+
+### Decision
+
+Use an appropriate availability architecture such as Availability Sets or Availability Zones based on the required failure-domain protection.
+
+### Lesson
+
+First identify the failure domain before selecting the availability mechanism.
+
+---
+
+## Scenario 15 - Avoid Inbound RDP
+
+### Requirement
+
+An administrator needs to execute a PowerShell command inside a Windows VM but does not want to open inbound RDP.
+
+### Decision
+
+Azure Run Command.
+
+### Lesson
+
+Run Command can provide guest OS command execution without requiring normal inbound RDP access.
+
+---
+
+## Scenario 16 - Persistent VM Data
+
+### Requirement
+
+Application data must survive VM lifecycle events.
+
+### Decision
+
+Use managed data disks.
+
+### Lesson
+
+Do not use the VM temporary disk for durable business data.
+
+---
+
+## Scenario 17 - Point-in-Time Disk Copy
+
+### Requirement
+
+An administrator wants a point-in-time copy of a managed disk before making changes.
+
+### Decision
+
+Create a managed disk snapshot.
+
+### Lesson
+
+Snapshot is a point-in-time copy, not the same thing as active managed disk storage.
+
+---
+
+## Scenario 18 - Regional Failure
+
+### Requirement
+
+An application must recover if an Azure region becomes unavailable.
+
+### Decision
+
+Use a disaster-recovery solution such as Azure Site Recovery where appropriate.
+
+### Lesson
+
+Regional disaster recovery is a different problem from VM distribution inside a region.
+
+---
+
+# Compute Failure-Domain Decision Model
+
+Ask:
+
+What failed?
+
+    |
+    +-- VM hardware / maintenance
+    |       |
+    |       +-- Availability Set
+    |
+    +-- Zone
+    |       |
+    |       +-- Availability Zones
+    |
+    +-- Region
+            |
+            +-- Disaster Recovery / Site Recovery
+
+The first question in an availability scenario should always be:
+
+"What failure domain am I trying to survive?"

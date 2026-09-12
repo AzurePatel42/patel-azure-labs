@@ -516,3 +516,345 @@ Average:
 Review the AZ-104 Compute module/labs before continuing to Q11-Q20.
 
 Use the Compute module to strengthen the weak areas identified during Q1-Q10.
+
+---
+
+# Compute Q11-Q20 — Weakness Detection Cycle
+
+## Q11 - VM Sizing
+
+### Scenario
+
+A VM is running an application that has insufficient CPU and memory capacity.
+
+### Initial Reasoning
+
+Adding a managed data disk or using the temporary disk does not increase the VM's CPU or RAM.
+
+### Correct Direction
+
+Resize the VM by selecting an appropriate VM size/SKU with the required:
+
+- vCPU
+- RAM
+- Performance characteristics
+
+### Key Considerations
+
+Before resizing, consider:
+
+- Target VM SKU availability
+- Cost
+- Supported VM family
+- Whether the VM must be stopped/deallocated
+- Application downtime
+
+### Key Lesson
+
+CPU and RAM capacity come from the VM size/SKU.
+
+Storage capacity comes from disks.
+
+---
+
+## Q12 - VM Disk Management
+
+### Scenario
+
+A VM is running out of storage capacity.
+
+### Correct Direction
+
+Consider:
+
+- Attaching an additional managed data disk
+- Expanding the existing managed disk
+
+After increasing disk capacity, the guest operating system may also require:
+
+- Partition extension
+- Filesystem extension
+
+### Key Lesson
+
+Increasing Azure disk capacity and making that capacity available inside the guest OS can be separate steps.
+
+---
+
+## Q13 - VMSS Autoscaling
+
+### Scenario
+
+An application experiences:
+
+- 90-95% CPU during peak periods
+- 15-20% CPU overnight
+- Variable workload
+- Need for automatic capacity adjustment
+
+### Answer
+
+Use VM Scale Sets with autoscaling.
+
+### Reasoning
+
+High sustained workload:
+
+CPU
+ |
+ v
+Scale Out
+ |
+ v
+More VM instances
+
+Low workload:
+
+CPU
+ |
+ v
+Scale In
+ |
+ v
+Fewer VM instances
+
+### Key Lesson
+
+Scale out = more VM instances.
+
+Scale up = larger VM size.
+
+---
+
+## Q14 - VM Infrastructure Failure
+
+### Scenario
+
+A VM experiences a problem with the physical infrastructure hosting it.
+
+### Initial Reasoning
+
+Availability Sets are relevant because they distribute VMs across fault and update domains.
+
+### Refinement
+
+Availability Sets help reduce the impact of:
+
+- Hardware failure
+- Planned maintenance
+
+They are not a substitute for a complete disaster-recovery strategy.
+
+### Key Lesson
+
+Availability architecture and disaster recovery solve different failure scopes.
+
+---
+
+## Q15 - Availability Set vs Availability Zone
+
+### Scenario
+
+A workload needs protection from planned maintenance and hardware failures within a region.
+
+### Answer
+
+Availability Sets can distribute VM instances across fault and update domains.
+
+Availability Zones provide stronger physical isolation by placing resources in separate zones within an Azure region.
+
+### Key Lesson
+
+Availability Set:
+
+Fault domains + Update domains
+
+Availability Zone:
+
+Physical zone-level isolation
+
+---
+
+## Q16 - Azure Run Command
+
+### Scenario
+
+An administrator needs to execute a command inside a VM's guest operating system without opening an inbound RDP connection.
+
+### Answer
+
+Use Azure Run Command.
+
+### Important Distinction
+
+Run Command allows commands/scripts to be executed inside the guest OS through Azure management mechanisms.
+
+It is different from:
+
+- RDP
+- SSH
+
+### Key Lesson
+
+Azure management access and guest OS command execution are different concerns.
+
+---
+
+## Q17 - Managed Disks
+
+### Scenario
+
+A VM requires persistent application data.
+
+### Answer
+
+Use an Azure managed data disk.
+
+Managed disks provide persistent block storage managed by Azure.
+
+### Important Distinction
+
+Managed disk:
+
+Persistent storage resource
+
+Temporary disk:
+
+Temporary/non-persistent storage
+
+### Key Lesson
+
+Use managed disks for durable VM application data.
+
+---
+
+## Q18 - VMSS for Identical VM Instances
+
+### Scenario
+
+An application requires approximately 50 identical VM instances with:
+
+- Consistent configuration
+- Centralized instance management
+- Autoscaling
+- Load balancing
+
+### Answer
+
+Use VM Scale Sets.
+
+Combine VMSS with an appropriate load-balancing mechanism when application traffic must be distributed.
+
+### Key Lesson
+
+VMSS is designed to manage groups of similar VM instances at scale.
+
+---
+
+## Q19 - Disk Snapshot
+
+### Scenario
+
+An administrator needs a point-in-time copy of a managed disk before making a risky change.
+
+### Answer
+
+Create a snapshot of the managed disk.
+
+### Purpose
+
+A snapshot captures the disk state at a point in time and can be used as a source for creating another managed disk.
+
+### Important Distinction
+
+Managed Disk:
+
+Active persistent block storage
+
+Snapshot:
+
+Point-in-time copy of disk state
+
+Snapshot should not automatically be treated as a complete backup strategy.
+
+### Key Lesson
+
+Snapshot = point-in-time disk copy.
+
+---
+
+## Q20 - Regional Disaster Recovery
+
+### Scenario
+
+A workload must be recoverable if the primary Azure region experiences a major outage.
+
+### Answer
+
+Use Azure Site Recovery for disaster recovery and failover scenarios.
+
+### Failure Scope
+
+Availability Set
+ |
+ +-- VM infrastructure distribution
+
+Availability Zone
+ |
+ +-- Zone-level infrastructure isolation
+
+Azure Site Recovery
+ |
+ +-- Regional disaster recovery
+
+### Key Lesson
+
+Choose the recovery mechanism based on the failure domain.
+
+---
+
+# Q11-Q20 Results
+
+| Question | Score | Primary Lesson |
+|---|---:|---|
+| Q11 | 2/10 | VM sizing and SKU selection |
+| Q12 | 5/10 | Disk capacity and guest OS extension |
+| Q13 | 10/10 | VMSS and autoscaling |
+| Q14 | 7/10 | Availability and infrastructure failure |
+| Q15 | 9/10 | Availability Sets vs Zones |
+| Q16 | 4/10 | Azure Run Command |
+| Q17 | 9/10 | Managed Disks |
+| Q18 | 10/10 | VMSS architecture |
+| Q19 | 6/10 | Disk snapshots |
+| Q20 | 10/10 | Azure Site Recovery |
+
+### Q11-Q20 Score
+
+7.2 / 10
+
+### Weakness Pattern
+
+Strong:
+
+- VMSS
+- Autoscaling
+- Availability concepts
+- Availability Zones
+- Site Recovery
+- Managed Disks
+- High-level architecture
+
+Needs reinforcement:
+
+- VM sizing
+- CPU/RAM vs storage
+- OS disk vs data disk
+- Azure Run Command
+- Disk snapshots
+- Precise availability/recovery mechanics
+
+### Learning Insight
+
+The Q11-Q20 cycle shows stronger architectural reasoning than detailed Compute mechanics.
+
+The next reinforcement cycle should deliberately target the weak areas rather than simply repeating broad Compute questions.
