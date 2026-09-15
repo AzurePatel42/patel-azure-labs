@@ -618,3 +618,318 @@ What failed?
 The first question in an availability scenario should always be:
 
 "What failure domain am I trying to survive?"
+
+---
+
+# Compute Q21-Q30 Advanced Scenarios
+
+## Scenario 19 - Production Multi-Zone Web Architecture
+
+### Requirements
+
+- Unpredictable traffic
+- Single frontend
+- High availability
+- Survive one zone failure
+- Automatic scaling
+- Healthy-backend routing
+
+### Decision
+
+VMSS + Load Balancer + Availability Zones + autoscaling + health probes.
+
+### Lesson
+
+VMSS provides/manages capacity.
+Load Balancer distributes traffic.
+Health probes determine backend health according to the configured check.
+Availability Zones provide failure isolation.
+
+---
+
+## Scenario 20 - Contributor Cannot RDP
+
+### Situation
+
+A developer has Contributor access to an Azure VM but cannot administer Windows through RDP.
+
+### Decision
+
+Contributor controls Azure resource management. It does not automatically provide Windows guest OS administrator access.
+
+For Windows administrative guest login, use the appropriate guest login authorization such as:
+
+- Virtual Machine Administrator Login
+
+RDP normally uses TCP 3389.
+
+### Lesson
+
+Azure resource permissions and guest OS permissions are separate layers.
+
+---
+
+## Scenario 21 - VM Running but Application Failed
+
+### Situation
+
+The VM remains Running but the application process has crashed.
+
+### Decision
+
+Investigate application health separately from VM state.
+
+### Lesson
+
+VM Running does not equal Application Healthy.
+
+---
+
+## Scenario 22 - High CPU Everywhere
+
+### Situation
+
+Most VMSS instances are heavily utilized.
+
+### Decision
+
+Investigate capacity and VMSS autoscaling.
+
+### Lesson
+
+High CPU across most instances is more consistent with a capacity problem than a traffic-distribution problem.
+
+---
+
+## Scenario 23 - High CPU on Only Some Instances
+
+### Situation
+
+A small number of instances are heavily loaded while most remain lightly loaded.
+
+### Decision
+
+Investigate:
+
+- Load Balancer distribution
+- Connection behavior
+- Session behavior
+- Application characteristics
+- Traffic patterns
+
+### Lesson
+
+Uneven utilization can indicate distribution or application behavior rather than insufficient total capacity.
+
+---
+
+## Scenario 24 - Complete Zone Failure
+
+### Situation
+
+One Availability Zone becomes unavailable.
+
+### Decision
+
+Healthy instances in the surviving zones continue serving traffic.
+
+The Load Balancer uses health-probe results and stops sending traffic to unhealthy backends.
+
+### Lesson
+
+The primary availability mechanism is capacity already distributed across surviving zones.
+
+Do not assume an Availability Zone failure automatically means immediate VM repair and redeployment into another zone.
+
+---
+
+## Scenario 25 - Intermittent Failure With Healthy Probes
+
+### Situation
+
+All VMs are Running and Load Balancer health probes are healthy, but users report intermittent failures.
+
+### Decision
+
+Investigate layer by layer:
+
+Load Balancer
+    ->
+Network
+    ->
+VM/NIC
+    ->
+Application
+    ->
+Dependencies
+
+Correlate failures with:
+
+- Timestamp
+- Backend instance
+- User/session
+- Request
+- Dependency
+
+### Lesson
+
+Healthy probes do not prove every application dependency is healthy.
+
+---
+
+## Scenario 26 - Temporary Disk Database
+
+### Situation
+
+A developer wants to put durable database files on temporary disk for performance.
+
+### Decision
+
+Reject the design.
+
+Use persistent managed data storage with a performance tier appropriate for the workload.
+
+### Lesson
+
+Temporary disk is for temporary/cache/scratch data, not durable production database storage.
+
+---
+
+## Scenario 27 - Slow VM With Normal CPU
+
+### Situation
+
+CPU and memory utilization are normal but the application is slow.
+
+### Decision
+
+Investigate:
+
+- Disk I/O
+- Disk latency
+- Disk IOPS
+- Disk throughput
+- Network latency
+- Network throughput
+- Application processing
+- Database
+- External APIs
+- DNS
+- Other dependencies
+
+### Lesson
+
+Normal CPU and memory do not eliminate performance bottlenecks.
+
+---
+
+## Scenario 28 - Autoscale Event
+
+### Situation
+
+Traffic increases and CPU exceeds the configured scale-out threshold.
+
+### Flow
+
+Traffic increases
+    ->
+Load Balancer receives requests
+    ->
+Traffic is distributed among healthy instances
+    ->
+CPU exceeds scale-out threshold
+    ->
+VMSS autoscaling triggers
+    ->
+New VM instances are created
+    ->
+Instances become ready
+    ->
+Health probes pass
+    ->
+Load Balancer can distribute traffic to the new healthy instances
+
+### Lesson
+
+Load Balancer distributes traffic.
+VMSS provides additional capacity.
+
+---
+
+## Scenario 29 - Configuration-Triggered Incident
+
+### Situation
+
+Intermittent production failures begin immediately after a configuration change.
+
+### Decision
+
+1. Identify exactly what changed.
+2. Correlate the change timestamp with the first failures.
+3. Check Load Balancer and health probes.
+4. Check networking.
+5. Check VM/NIC state.
+6. Check application logs and metrics.
+7. Check dependencies.
+8. Determine whether failures correlate with a particular instance, request, user, or dependency.
+
+### Recovery
+
+If the configuration change is confirmed as the cause:
+
+1. Roll back to the last known-good configuration when appropriate.
+2. Verify service recovery.
+3. Identify why the change caused the failure.
+4. Correct the configuration.
+5. Document the incident and change.
+
+### Lesson
+
+Production troubleshooting should be evidence-driven and layer-by-layer.
+
+---
+
+# Advanced Compute Decision Framework
+
+What is the problem?
+
+    |
+    +-- Need more capacity?
+    |       |
+    |       +-- VMSS / autoscaling
+    |
+    +-- Need traffic distribution?
+    |       |
+    |       +-- Load Balancer
+    |
+    +-- Backend unhealthy?
+    |       |
+    |       +-- Health probe
+    |
+    +-- Need failure isolation?
+    |       |
+    |       +-- Availability Zones
+    |
+    +-- Need persistent VM data?
+    |       |
+    |       +-- Managed Data Disk
+    |
+    +-- Need temporary/scratch data?
+    |       |
+    |       +-- Temporary Disk
+    |
+    +-- Need Windows remote access?
+    |       |
+    |       +-- RDP / TCP 3389
+    |
+    +-- Need Azure resource management?
+    |       |
+    |       +-- Azure RBAC
+    |
+    +-- Need guest OS access?
+    |       |
+    |       +-- Guest login authorization
+    |
+    +-- Need regional recovery?
+            |
+            +-- Disaster Recovery solution

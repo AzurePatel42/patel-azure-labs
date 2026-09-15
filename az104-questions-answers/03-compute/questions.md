@@ -858,3 +858,463 @@ Needs reinforcement:
 The Q11-Q20 cycle shows stronger architectural reasoning than detailed Compute mechanics.
 
 The next reinforcement cycle should deliberately target the weak areas rather than simply repeating broad Compute questions.
+
+---
+
+## Q21 - Production VMSS + Load Balancer + Availability Zones
+
+### Scenario
+
+A production Windows web application has:
+
+- Unpredictable traffic
+- High availability if a VM fails
+- Requirement to survive a single Availability Zone failure
+- Automatic scaling based on demand
+- A single frontend endpoint
+- Traffic sent only to healthy VM instances
+
+### Answer
+
+Use:
+
+- Virtual Machine Scale Sets (VMSS)
+- Azure Load Balancer
+- Multiple Availability Zones
+- Autoscaling
+- Health probes
+
+### Architecture
+
+Users
+    |
+    v
+Azure Load Balancer
+    |
+    +---- Zone 1 ---- VMSS instances
+    |
+    +---- Zone 2 ---- VMSS instances
+    |
+    +---- Zone 3 ---- VMSS instances
+
+### Responsibilities
+
+Load Balancer:
+- Provides the frontend endpoint
+- Distributes traffic
+- Uses health-probe results to avoid unhealthy backends
+
+VMSS:
+- Manages the VM instance fleet
+- Scales out/in according to configured policies
+
+Availability Zones:
+- Provide physical infrastructure isolation within the region
+
+### Key Lesson
+
+Load Balancer distributes traffic.
+VMSS provides/manages capacity.
+Availability Zones provide failure isolation.
+
+---
+
+## Q22 - Azure RBAC vs Windows Guest OS Permissions
+
+### Scenario
+
+A developer has Contributor access to an Azure VM and assumes this allows Windows administrative login.
+
+### Answer
+
+The reasoning is incorrect.
+
+Contributor is an Azure resource-management permission. It does not automatically grant administrative access inside the Windows guest OS.
+
+For Windows guest login, the relevant Azure RBAC role is:
+
+- Virtual Machine Administrator Login
+
+For non-administrator guest login:
+
+- Virtual Machine User Login
+
+### RDP
+
+Normal Windows remote administration uses:
+
+- RDP
+- TCP 3389
+
+### Troubleshooting Flow
+
+Check:
+
+1. Correct VM/IP address
+2. Network connectivity
+3. NSG rules
+4. TCP 3389
+5. Routing
+6. RDP enabled/configured
+7. Windows Firewall/RDP service
+8. Guest OS login authorization
+
+### Key Lesson
+
+Azure RBAC controls Azure resource management.
+Guest OS permissions control access inside the VM.
+Network controls determine whether the VM can be reached.
+
+---
+
+## Q23 - VM Health vs Application Health
+
+### Scenario
+
+A VMSS web application experiences failures when the application process crashes while the VM itself remains Running.
+
+### Answer
+
+Do not treat VM Running status as proof that the application is healthy.
+
+### Troubleshooting Model
+
+VM Running
+    |
+    v
+Application process
+    |
+    v
+Application health endpoint
+    |
+    v
+Load Balancer health probe
+    |
+    v
+Traffic routing
+    |
+    v
+VMSS health/repair behavior
+
+### Key Lesson
+
+Load Balancer health probes determine backend health according to the configured check. They do not prove every aspect of application health.
+
+VMSS manages instances and scaling; repair behavior depends on configuration.
+
+---
+
+## Q24 - Capacity Problem vs Traffic Distribution Problem
+
+### Scenario
+
+A VMSS application has high CPU utilization while Load Balancer probes remain healthy.
+
+### Capacity Pattern
+
+Most instances have high CPU:
+
+    VM1 85%
+    VM2 87%
+    VM3 84%
+    VM4 89%
+
+This points toward insufficient capacity and should lead to investigation of VMSS autoscaling.
+
+### Distribution Pattern
+
+Only a few instances are heavily loaded while most remain low:
+
+    VM1 95%
+    VM2 92%
+    VM3 30%
+    VM4 25%
+
+This should lead to investigation of traffic distribution, connection behavior, session persistence, application behavior, and Load Balancer configuration.
+
+### Key Lesson
+
+Healthy health probes do not mean an instance has unlimited capacity.
+
+---
+
+## Q25 - Availability Zone Failure
+
+### Scenario
+
+A VMSS application is distributed across three Availability Zones and one entire zone fails.
+
+### Expected Flow
+
+Availability Zone failure
+    |
+    v
+Instances in failed zone become unavailable
+    |
+    v
+Health probes detect unhealthy backends
+    |
+    v
+Load Balancer stops sending traffic to unhealthy instances
+    |
+    v
+Healthy instances in surviving zones continue serving traffic
+    |
+    v
+VMSS manages instance capacity according to its configuration
+
+### Important Distinction
+
+Do not assume a zone failure automatically means the affected VMs are immediately repaired and redeployed into another zone.
+
+The primary availability mechanism is the capacity already distributed across surviving zones.
+
+### Key Lesson
+
+Availability Zones protect against zone-level infrastructure failure by distributing application capacity across physically isolated zones.
+
+---
+
+## Q26 - Layer-by-Layer Troubleshooting
+
+### Scenario
+
+All VMs are Running, CPU and memory are normal, health probes are healthy, but users report intermittent failures.
+
+### Troubleshooting Sequence
+
+1. Check Load Balancer behavior and whether failures correlate with specific backends.
+2. Check network path: NSGs, routes, IP addresses, ports, and connectivity.
+3. Check VM/NIC configuration.
+4. Check application dependencies such as database, APIs, and DNS.
+5. Correlate logs and metrics with the failure timestamp.
+6. Check whether the failure affects particular requests, users, sessions, or instances.
+
+### Key Lesson
+
+Do not jump directly to one component.
+
+Use evidence to eliminate layers:
+
+Load Balancer
+    ->
+Network
+    ->
+VM/NIC
+    ->
+Application
+    ->
+Dependencies
+
+---
+
+## Q27 - Temporary Disk vs Production Database
+
+### Scenario
+
+A developer proposes moving production database files to the VM temporary disk because it is faster.
+
+### Answer
+
+Do not approve the design.
+
+Production database data requires persistent storage.
+
+Use an appropriate persistent Azure managed data disk and select the performance tier based on workload requirements.
+
+### Disk Model
+
+OS Disk
+    ->
+Persistent operating system storage
+
+Data Disk
+    ->
+Persistent application/database data
+
+Temporary Disk
+    ->
+Temporary/cache/scratch data
+
+### Key Lesson
+
+Production database storage decisions require consideration of:
+
+- Persistence
+- Performance
+- Durability
+- IOPS
+- Throughput
+- Latency
+
+Do not use temporary disk as durable production database storage.
+
+---
+
+## Q28 - VM Performance Troubleshooting
+
+### Scenario
+
+A production VM application is slow while CPU and memory utilization are normal.
+
+### Investigation
+
+Check:
+
+- Disk I/O
+- Disk latency
+- Disk IOPS
+- Disk throughput
+- Network latency
+- Network throughput
+- Application processing
+- Database performance
+- External APIs
+- DNS
+- Other dependencies
+
+### Important Distinction
+
+Disk capacity percentage does not tell you whether disk performance is sufficient.
+
+CPU utilization of 22% does not prove the application is healthy.
+
+### Key Lesson
+
+Use metrics and logs to identify the actual bottleneck instead of assuming CPU is responsible.
+
+---
+
+## Q29 - VMSS Scaling vs Load Balancer Distribution
+
+### Scenario
+
+Traffic increases dramatically and average CPU exceeds the configured scale-out threshold.
+
+### Flow
+
+User traffic increases
+    |
+    v
+Load Balancer receives requests
+    |
+    v
+Traffic is distributed among healthy instances
+    |
+    v
+Average CPU exceeds scale-out threshold
+    |
+    v
+VMSS autoscaling triggers
+    |
+    v
+New VM instances are created
+    |
+    v
+Instances become ready
+    |
+    v
+Health probes pass
+    |
+    v
+Load Balancer can distribute traffic to the new healthy instances
+
+### Key Lesson
+
+Load Balancer distributes traffic.
+
+VMSS provides additional capacity.
+
+The Load Balancer cannot create VM instances to solve a capacity shortage.
+
+---
+
+## Q30 - Production Incident Troubleshooting
+
+### Scenario
+
+A production Windows VMSS application experiences intermittent failures immediately after a configuration change.
+
+### Troubleshooting Strategy
+
+Start with the configuration change because the failure began immediately afterward.
+
+Then investigate layer by layer:
+
+1. Identify exactly what changed.
+2. Correlate the change timestamp with the first failures.
+3. Check Load Balancer behavior and health probes.
+4. Check networking: NSG, ports, IPs, routes, and connectivity.
+5. Check VM/NIC state.
+6. Check application logs and metrics at the failure time.
+7. Check dependencies such as database, APIs, and DNS.
+8. Determine whether failures correlate with a particular instance, request, user, or dependency.
+
+### Recovery
+
+If the configuration change is confirmed as the cause:
+
+1. Roll back to the last known-good configuration when appropriate.
+2. Verify service recovery.
+3. Identify why the change caused the failure.
+4. Correct the configuration.
+5. Document the incident and change.
+
+### Key Lesson
+
+Production troubleshooting should be evidence-driven and layer-by-layer.
+
+Configuration changes should be investigated first when there is a strong temporal correlation with the incident.
+
+---
+
+# Compute Q21-Q30 Results
+
+| Question | Score | Primary Lesson |
+|---|---:|---|
+| Q21 | 9/10 | VMSS + Load Balancer + Zones architecture |
+| Q22 | 8/10 | Azure RBAC vs guest OS + RDP |
+| Q23 | 6.5/10 | VM health vs application health |
+| Q24 | 7.5/10 | Capacity vs traffic distribution |
+| Q25 | 7/10 | Zone failure and surviving capacity |
+| Q26 | 7/10 | Layer-by-layer troubleshooting |
+| Q27 | 8/10 | Temporary vs persistent storage |
+| Q28 | 8/10 | Performance troubleshooting |
+| Q29 | 9/10 | VMSS scaling vs Load Balancer |
+| Q30 | 9/10 | Production incident troubleshooting |
+
+### Q21-Q30 Score
+
+80%
+
+### Compute Q1-Q30 Overall
+
+Q1-Q10: 77.5%
+
+Q11-Q20: 72%
+
+Q21-Q30: 80%
+
+Overall:
+
+76.5%
+
+### Final Compute Learning Pattern
+
+Architecture
+    ->
+Capacity
+    ->
+Availability
+    ->
+Traffic Distribution
+    ->
+Health
+    ->
+Network
+    ->
+Application
+    ->
+Dependencies
+    ->
+Recovery

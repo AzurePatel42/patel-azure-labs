@@ -836,3 +836,137 @@ Detailed Compute mechanics
     +-- Needs reinforcement
 
 The next Compute review should target the detailed mechanics before advancing to more complex scenarios.
+
+---
+
+# Compute Q21-Q30 Advanced Mental Model
+
+## 1. Compute Architecture Responsibility Map
+
+User
+    |
+    v
+Load Balancer
+    |
+    v
+Healthy VMSS instances
+    |
+    v
+Application
+    |
+    v
+Dependencies
+
+VMSS:
+- Instance management
+- Scale out/in
+- Capacity management
+
+Load Balancer:
+- Frontend endpoint
+- Traffic distribution
+- Health-probe based backend selection
+
+Health Probe:
+- Determines backend health according to configured protocol/port/check
+
+Availability Zones:
+- Physical infrastructure isolation
+
+Guest OS:
+- Windows/Linux operating system and application runtime
+
+## 2. Health Is Layered
+
+VM Running
+    !=
+Application Healthy
+    !=
+Dependency Healthy
+    !=
+User Request Successful
+
+Troubleshooting must distinguish these layers.
+
+## 3. Capacity vs Distribution
+
+Most instances overloaded:
+    ->
+Capacity problem
+    ->
+Investigate VMSS autoscaling
+
+Few instances overloaded:
+    ->
+Possible distribution/application behavior
+    ->
+Investigate Load Balancer and request patterns
+
+## 4. Availability vs Scaling
+
+Availability:
+    ->
+Survive failures
+
+Scaling:
+    ->
+Handle changing workload
+
+Load Balancing:
+    ->
+Distribute traffic
+
+VMSS:
+    ->
+Manage instances and capacity
+
+These are related but different responsibilities.
+
+## 5. Storage
+
+OS Disk:
+    ->
+Persistent OS storage
+
+Data Disk:
+    ->
+Persistent application/database data
+
+Temporary Disk:
+    ->
+Temporary/cache/scratch data
+
+## 6. Production Troubleshooting
+
+Use evidence to eliminate layers:
+
+Configuration
+    ->
+Load Balancer
+    ->
+Health Probe
+    ->
+Network
+    ->
+VM/NIC
+    ->
+Application
+    ->
+Dependencies
+    ->
+Recovery
+
+## Compute SME Decision Rules
+
+1. High CPU across most instances -> investigate capacity/autoscaling.
+2. High CPU on only a few instances -> investigate distribution/application behavior.
+3. VM Running -> does not prove application health.
+4. Healthy probe -> means the configured health check passes, not that every dependency is healthy.
+5. Contributor -> Azure resource management, not Windows administrator login.
+6. Windows remote administration -> RDP/TCP 3389.
+7. Production database -> persistent managed storage, not temporary disk.
+8. Availability Zones -> zone-level infrastructure isolation.
+9. Load Balancer -> traffic distribution, not instance creation.
+10. VMSS -> instance management and autoscaling.
+11. Configuration change immediately before incident -> high-priority investigation candidate.
+12. CPU/memory normal -> investigate disk, network, application, and dependencies.

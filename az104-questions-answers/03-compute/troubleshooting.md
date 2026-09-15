@@ -680,3 +680,445 @@ Identify layer
 Choose the Azure capability that solves that specific problem.
 
 This is the preferred Compute troubleshooting mindset going forward.
+
+---
+
+# Compute Q21-Q30 Production Troubleshooting
+
+## Troubleshooting Model
+
+Production incidents should be investigated from the outside inward and from evidence to hypothesis.
+
+Configuration
+    ->
+Load Balancer
+    ->
+Health Probe
+    ->
+Network
+    ->
+VM/NIC
+    ->
+Application
+    ->
+Dependencies
+    ->
+Recovery
+
+---
+
+## Q21 - Multi-Zone Production Failure
+
+### Symptom
+
+A production VMSS deployment loses capacity in one Availability Zone.
+
+### Investigation
+
+Check:
+
+1. Which instances remain healthy?
+2. Which zones are affected?
+3. Load Balancer health-probe status.
+4. VMSS instance state.
+5. Application availability in surviving zones.
+
+### Key Principle
+
+Availability Zones provide infrastructure failure isolation.
+
+Do not confuse zone distribution with autoscaling.
+
+---
+
+## Q22 - Contributor but Cannot Administer Windows
+
+### Symptom
+
+A user can manage the Azure VM resource but cannot log into Windows with administrative privileges.
+
+### Investigation
+
+Separate:
+
+Azure Resource Management
+    ->
+Azure RBAC
+
+from:
+
+Guest OS Access
+    ->
+Windows login authorization
+
+### Correct Direction
+
+Check whether the user has the appropriate:
+
+Virtual Machine Administrator Login
+
+authorization.
+
+For Windows remote access, verify:
+
+RDP
+    ->
+TCP 3389
+    ->
+Network access
+    ->
+Guest OS access
+
+### Key Principle
+
+Contributor does not automatically mean Windows administrator.
+
+---
+
+## Q23 - VM Running but Application Unavailable
+
+### Symptom
+
+Azure reports the VM as Running, but users cannot use the application.
+
+### Investigation
+
+Do not stop at VM state.
+
+Check:
+
+1. Load Balancer backend state.
+2. Health probe.
+3. Network connectivity.
+4. VM/NIC.
+5. Application process.
+6. Application logs.
+7. Application dependencies.
+
+### Key Principle
+
+VM Running
+    !=
+Application Healthy
+
+---
+
+## Q24 - Most VMSS Instances Have High CPU
+
+### Symptom
+
+Most instances show sustained high CPU.
+
+### Investigation
+
+Check:
+
+1. Current workload.
+2. VM size and capacity.
+3. Autoscale configuration.
+4. Scale-out thresholds.
+5. Minimum and maximum instance counts.
+6. Whether scaling occurred.
+7. Whether new instances became healthy.
+
+### Key Principle
+
+High CPU across most instances strongly suggests a capacity problem.
+
+Investigate VMSS autoscaling before assuming uneven traffic distribution.
+
+---
+
+## Q25 - Only a Few Instances Have High CPU
+
+### Symptom
+
+Two instances are heavily loaded while the remaining instances have low utilization.
+
+### Investigation
+
+Check:
+
+1. Load Balancer distribution.
+2. Health-probe behavior.
+3. Long-lived connections.
+4. Session behavior.
+5. Application workload.
+6. Request distribution.
+7. Instance-specific application behavior.
+
+### Key Principle
+
+A few overloaded instances with many lightly loaded instances can indicate distribution or application behavior rather than insufficient total capacity.
+
+---
+
+## Q26 - Users Report Intermittent Failures
+
+### Symptom
+
+Some requests fail while others succeed.
+
+### Investigation
+
+Correlate:
+
+- Timestamp
+- User/session
+- Request
+- Backend instance
+- Health-probe state
+- Network behavior
+- Application logs
+- Dependency failures
+
+### Key Principle
+
+Do not immediately assume the Load Balancer or VM is the root cause.
+
+Trace the request through every layer.
+
+---
+
+## Q27 - Database Data Lost After VM Restart
+
+### Symptom
+
+Database files stored on temporary disk are missing after a restart or host event.
+
+### Root Cause
+
+Temporary disk is not appropriate for durable production database data.
+
+### Correct Design
+
+Persistent database storage
+    ->
+Managed Data Disk
+    ->
+Appropriate performance tier
+
+### Key Principle
+
+Temporary Disk
+    ->
+Temporary/cache/scratch data
+
+Managed Data Disk
+    ->
+Persistent application/database data
+
+---
+
+## Q28 - VM Slow With Normal CPU
+
+### Symptom
+
+CPU and memory look normal, but application response time is high.
+
+### Investigation
+
+Check:
+
+Disk
+    ->
+IOPS
+    ->
+Throughput
+    ->
+Latency
+
+Network
+    ->
+Latency
+    ->
+Throughput
+
+Application
+    ->
+Processing time
+    ->
+Errors
+
+Dependencies
+    ->
+Database
+    ->
+DNS
+    ->
+External APIs
+
+### Key Principle
+
+CPU is only one possible bottleneck.
+
+Disk capacity and disk performance are different concepts.
+
+---
+
+## Q29 - Traffic Spike and Autoscaling
+
+### Symptom
+
+Application traffic increases significantly.
+
+### Investigation
+
+Verify:
+
+1. Load Balancer receives traffic.
+2. Healthy instances receive requests.
+3. CPU/workload increases.
+4. Autoscale rule evaluates the configured metric.
+5. VMSS adds instances.
+6. New instances become ready.
+7. Health probes pass.
+8. Load Balancer includes healthy instances.
+
+### Key Principle
+
+Load Balancer
+    ->
+Distribution
+
+VMSS
+    ->
+Capacity
+
+Health Probe
+    ->
+Backend health according to configured check
+
+---
+
+## Q30 - Incident Immediately After Configuration Change
+
+### Symptom
+
+Production failures begin immediately after a configuration change.
+
+### Investigation Order
+
+1. Identify the exact change.
+2. Record the change timestamp.
+3. Compare it with the first failure timestamp.
+4. Check Load Balancer behavior.
+5. Check health probes.
+6. Check network configuration.
+7. Check VM/NIC state.
+8. Check application logs and metrics.
+9. Check dependencies.
+10. Correlate affected instances, users, requests, and timestamps.
+
+### Recovery
+
+If evidence confirms the configuration caused the incident:
+
+1. Roll back to the last known-good configuration when appropriate.
+2. Verify service recovery.
+3. Determine the underlying cause.
+4. Correct the configuration.
+5. Retest.
+6. Document the incident and change.
+
+### Key Principle
+
+The closest change before an incident is a high-priority investigation candidate, but correlation must be verified with evidence.
+
+---
+
+# Compute Troubleshooting Decision Rules
+
+### Rule 1 - Capacity
+
+Most instances overloaded
+    ->
+Investigate VMSS capacity/autoscaling
+
+### Rule 2 - Distribution
+
+Few instances overloaded
+    ->
+Investigate Load Balancer distribution and application behavior
+
+### Rule 3 - Health
+
+VM Running
+    ->
+Not proof of application health
+
+### Rule 4 - Probe
+
+Health probe healthy
+    ->
+Configured health check passes
+
+Not proof that:
+
+- Every application function works
+- Every dependency works
+- Every user request succeeds
+
+### Rule 5 - Access
+
+Contributor
+    ->
+Azure resource management
+
+Virtual Machine Administrator Login
+    ->
+Guest OS administrative login
+
+### Rule 6 - Storage
+
+Persistent production data
+    ->
+Managed persistent storage
+
+Temporary/cache/scratch data
+    ->
+Temporary Disk
+
+### Rule 7 - Performance
+
+CPU/memory normal
+    ->
+Do not stop troubleshooting
+
+Investigate:
+
+- Disk
+- Network
+- Application
+- Dependencies
+
+### Rule 8 - Incident Response
+
+Configuration change
+    ->
+Timestamp correlation
+    ->
+Layer-by-layer investigation
+    ->
+Evidence
+    ->
+Recovery
+    ->
+Root cause
+    ->
+Documentation
+
+---
+
+# Compute Troubleshooting Mindset
+
+Do not ask:
+
+"Which Azure service is broken?"
+
+Ask:
+
+"At which layer does the evidence show the failure?"
+
+This prevents premature conclusions and creates a repeatable production-debugging process.
+
