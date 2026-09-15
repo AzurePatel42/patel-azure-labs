@@ -16,7 +16,7 @@ Daily target:
 |---|---:|---:|---:|---|---|
 | Identity & Governance | 30 | 4 | 4 | Strong Developing | COMPLETE |
 | Storage | 30 | 30 | 30 | Strong Developing | COMPLETE |
-| Compute | 20 | 0 | 0 | Developing | IN PROGRESS |
+| Compute | 30 | 30 | 30 | Developing | COMPLETE |
 | Networking | 0 | 0 | 0 | Not assessed | PENDING |
 | Monitoring | 0 | 0 | 0 | Not assessed | PENDING |
 | Cross-Domain | 0 | 0 | 0 | Not assessed | PENDING |
@@ -155,7 +155,7 @@ Questions that should return during future sessions:
 - [x] Complete first 20 Identity & Governance questions
 - [x] Complete Identity & Governance 30-question foundation
 - [x] Complete Storage question foundation
-- [ ] Complete Compute question foundation
+- [x] Complete Compute question foundation
 - [ ] Complete Networking question foundation
 - [ ] Complete Monitoring question foundation
 - [ ] Begin cross-domain scenarios
@@ -749,5 +749,169 @@ Before starting Q21-Q30, reinforce:
 - Managed Disk vs Snapshot
 - Availability Set vs Zone
 - Availability vs Disaster Recovery
+
+---
+
+# September 14, 2026 - Compute Q21-Q30
+
+## Compute Q21-Q30
+
+Questions completed:
+
+10 / 10
+
+Domain status:
+
+FOUNDATION COMPLETE
+
+Session score:
+
+80%
+
+Cumulative Compute progress:
+
+30 / 30 questions complete
+
+Cumulative Compute average:
+
+76.5%
+
+### Session Scores
+
+- Q21 - 9/10
+- Q22 - 8/10
+- Q23 - 6.5/10
+- Q24 - 7.5/10
+- Q25 - 7/10
+- Q26 - 7/10
+- Q27 - 8/10
+- Q28 - 8/10
+- Q29 - 9/10
+- Q30 - 9/10
+
+### Primary Learning Themes
+
+- Production VMSS architecture
+- Load Balancer responsibilities
+- Availability Zones
+- Azure RBAC vs Windows guest OS permissions
+- RDP and guest access
+- VM health vs application health
+- Capacity vs traffic distribution
+- Layer-by-layer troubleshooting
+- Temporary Disk vs persistent database storage
+- VM performance troubleshooting
+- VMSS scaling vs Load Balancer responsibilities
+- Production incident response
+
+### Compute Q21-Q30 Weakness Areas
+
+1. VM health vs application health
+2. Capacity problem vs traffic distribution problem
+3. Layer-by-layer troubleshooting
+4. Availability Zone failure behavior
+5. Detailed production incident troubleshooting
+
+### Strong Areas Reinforced
+
+1. VMSS architecture
+2. Load Balancer responsibilities
+3. Availability Zones
+4. Scaling vs traffic distribution
+5. Persistent vs temporary storage
+6. Evidence-driven troubleshooting
+
+### Key Corrections
+
+1. Load Balancer distributes traffic; VMSS manages instance capacity and scaling.
+2. Availability Zones provide physical infrastructure isolation within a region.
+3. Azure Contributor access does not automatically provide Windows administrator access inside the guest OS.
+4. Windows remote administration normally uses RDP over TCP 3389.
+5. A VM being Running does not prove that the application is healthy.
+6. High CPU across most instances points toward a capacity/scaling investigation.
+7. High CPU on only a few instances should prompt investigation of traffic distribution and application behavior.
+8. Temporary Disk should not be used for durable production database storage.
+9. Normal CPU and memory do not eliminate disk, network, application, database, DNS, or dependency problems.
+10. A configuration change immediately preceding an incident should be investigated using temporal correlation and evidence.
+
+### Scenario Coverage
+
+10 additional Compute scenarios completed.
+
+Primary scenario areas:
+
+- Production VMSS + Load Balancer + Availability Zones
+- Azure RBAC vs Windows guest OS permissions
+- VM health vs application health
+- Capacity vs traffic distribution
+- Availability Zone failure
+- Layer-by-layer troubleshooting
+- Temporary Disk vs production database
+- VM performance troubleshooting
+- VMSS scaling vs Load Balancer
+- Production incident troubleshooting
+
+### Troubleshooting Coverage
+
+10 additional Compute troubleshooting patterns completed.
+
+Primary troubleshooting areas:
+
+- RDP and guest access
+- Application health detection
+- Capacity vs distribution
+- Zone failure
+- Network and dependency investigation
+- Persistent vs temporary storage
+- Disk and network performance
+- VMSS scaling
+- Load Balancer behavior
+- Configuration-change incident response
+
+### Final Compute Learning Pattern
+
+Architecture
+    ->
+Capacity
+    ->
+Availability
+    ->
+Traffic Distribution
+    ->
+Health
+    ->
+Network
+    ->
+Application
+    ->
+Dependencies
+    ->
+Recovery
+
+### Compute Q1-Q30 Overall
+
+Q1-Q10: 77.5%
+
+Q11-Q20: 72%
+
+Q21-Q30: 80%
+
+Overall:
+
+76.5%
+
+### Current Position
+
+Compute Q1-Q30:
+
+30 / 30 - COMPLETE
+
+Next:
+
+Scenario
+    ->
+Troubleshooting
+    ->
+Retest
 
 ---
