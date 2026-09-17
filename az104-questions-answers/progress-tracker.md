@@ -906,12 +906,111 @@ Compute Q1-Q30:
 
 30 / 30 - COMPLETE
 
+Compute Weak-Area Brainstorming:
+
+COMPLETE
+
+Compute Weak-Area Retest:
+
+COMPLETE
+
 Next:
 
+AZ-104 Networking
+
+---
+
+
+---
+
+# September 17, 2026 - Compute Weak-Area Brainstorming and Retest
+
+## Compute Weak-Area Completion
+
+### Status
+
+COMPUTE WEAK AREAS COMPLETE
+
+### Weak Areas Reinforced
+
+1. VM health vs application health
+2. Capacity vs traffic distribution
+3. Layer-by-layer troubleshooting
+4. Availability Zone failure behavior
+5. Production incident troubleshooting
+
+### Retest Result
+
+All identified Compute weak-area concepts were reviewed and reinforced
+through scenario-based reasoning and structured troubleshooting.
+
+### Final Compute Position
+
+Compute Q1-Q30:
+
+30 / 30 - COMPLETE
+
+Overall Compute score:
+
+76.5%
+
+Scenario coverage:
+
+30 / 30 - COMPLETE
+
+Troubleshooting coverage:
+
+30 / 30 - COMPLETE
+
+Weak-area brainstorming:
+
+COMPLETE
+
+Weak-area retest:
+
+COMPLETE
+
+### Final Compute Reasoning Model
+
+Architecture
+    ->
+Capacity
+    ->
+Availability
+    ->
+Traffic Distribution
+    ->
+Health
+    ->
+Network
+    ->
+Application
+    ->
+Dependencies
+    ->
+Recovery
+
+### Compute Completion Decision
+
+Compute foundation, scenario coverage, troubleshooting coverage, weak-area
+brainstorming, and weak-area retest are complete.
+
+The next AZ-104 domain is Networking.
+
+### Next Target
+
+AZ-104 Networking module review
+    ->
+Networking Q1-Q10
+    ->
+Networking Q11-Q20
+    ->
+Networking Q21-Q30
+    ->
 Scenario
     ->
 Troubleshooting
     ->
+Weak-Area Identification
+    ->
 Retest
-
----
