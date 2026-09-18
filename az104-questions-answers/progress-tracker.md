@@ -17,7 +17,7 @@ Daily target:
 | Identity & Governance | 30 | 4 | 4 | Strong Developing | COMPLETE |
 | Storage | 30 | 30 | 30 | Strong Developing | COMPLETE |
 | Compute | 30 | 30 | 30 | Developing | COMPLETE |
-| Networking | 0 | 0 | 0 | Not assessed | PENDING |
+| Networking | 20 | 20 | 20 | Not assessed | IN PROGRESS |
 | Monitoring | 0 | 0 | 0 | Not assessed | PENDING |
 | Cross-Domain | 0 | 0 | 0 | Not assessed | PENDING |
 | Interview Mode | 0 | 0 | 0 | Not assessed | PENDING |
@@ -172,17 +172,17 @@ Questions that should return during future sessions:
 
 ## Current Position
 
-AZ-104 Identity & Governance
+AZ-104 Networking
 
 Questions completed:
 
-30
+20
 
 Current next target:
 
-Storage Q11-Q20
+Networking Q21-Q30
 
-Identity & Governance foundation is complete. The next objective is Storage.
+Networking Q1-Q20 foundation is complete. The next objective is Networking Q21-Q30.
 
 ---
 
