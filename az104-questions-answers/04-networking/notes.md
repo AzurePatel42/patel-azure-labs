@@ -173,3 +173,206 @@ Troubleshooting coverage: COMPLETE
 Next step:
 
 Networking weak-area reinforcement and retesting.
+
+## September 18, 2026 - Networking Q11-Q20 Brainstorming
+
+### Q11 - Same VNet Private Communication
+
+Resources in different subnets of the same VNet can communicate using private IP addresses by default, assuming no NSG or routing restrictions prevent the traffic.
+
+Key lesson:
+
+VNet = private network boundary
+Subnet = logical segmentation
+
+A subnet does not automatically provide security isolation. NSGs and routing controls can restrict communication.
+
+### Q12 - VNet Peering
+
+VNet Peering provides private connectivity between two Azure VNets.
+
+Resources in peered VNets can communicate using private IP addresses.
+
+Key lesson:
+
+VNet Peering = private VNet-to-VNet connectivity
+
+### Q13 - NSG Troubleshooting
+
+If VM-01 cannot communicate with VM-02, investigate the applicable NSG rules on the source and destination sides.
+
+Key lesson:
+
+Check all applicable NSG layers rather than assuming one NSG controls the entire path.
+
+### Q14 - VNet Peering and Routing
+
+VNet Peering provides connectivity between VNets, but connectivity does not automatically guarantee successful traffic delivery.
+
+If the required route or next hop is incorrect, the packet may not reach the destination.
+
+Key lesson:
+
+Connectivity mechanism != successful routing
+
+Route = traffic path
+
+### Q15 - Network Virtual Appliance Failure
+
+A route can exist while traffic still fails if the configured network appliance or next hop is unavailable.
+
+Key lesson:
+
+A valid route does not guarantee that the next hop can actually receive or forward traffic.
+
+### Q16 - Service Endpoint vs Private Endpoint
+
+Service Endpoint:
+
+Provides private connectivity from a VNet to supported Azure services while the service remains accessed through its service endpoint.
+
+Private Endpoint:
+
+Provides private connectivity to an Azure service through a private IP address in the VNet.
+
+Key lesson:
+
+Private Endpoint = private IP-based access to the Azure service.
+
+### Q17 - Private DNS with Private Endpoint
+
+When accessing an Azure service through a Private Endpoint, private DNS can ensure the service hostname resolves to the Private Endpoint private IP.
+
+Key lesson:
+
+Private Endpoint + correct DNS resolution are closely connected.
+
+### Q18 - Load Balancer vs Application Gateway
+
+Load Balancer operates at Layer 4 and distributes traffic based on IP address and port.
+
+Application Gateway operates at Layer 7 and supports HTTP/HTTPS-aware routing such as URL path-based routing.
+
+Key lesson:
+
+Load Balancer = L4 traffic distribution
+Application Gateway = L7 web/application routing
+
+### Q19 - Application Gateway Health Probe
+
+If Application Gateway reports a backend as Unhealthy, investigate the health probe configuration and backend application/service.
+
+Verify:
+
+- Probe protocol
+- Probe port
+- Probe path
+- Backend service
+- Expected response
+
+Example:
+
+Application = HTTPS 8443
+Health Probe = HTTPS 443
+
+The probe can fail because it is checking the wrong port.
+
+Key lesson:
+
+VM health != application health
+
+### Q20 - HTTP 403
+
+If DNS, routing, NSGs, VM status, port, and health probe are working but the client receives HTTP 403, move upward to the application and authorization layers.
+
+HTTP 403 indicates that the request reached the service but access was denied.
+
+Investigate:
+
+- Requesting identity
+- Effective authorization
+- Role
+- Scope
+- Access conditions
+- Application behavior
+
+Key lesson:
+
+Network reachability != authorization
+
+---
+
+## Networking Cross-Domain Mental Model
+
+Authentication
+  ->
+Authorization
+  ->
+Scope
+  ->
+Network
+  ->
+Resource
+  ->
+Application
+  ->
+Health
+  ->
+Troubleshooting
+
+## Networking Layered Troubleshooting Model
+
+Name
+  ->
+DNS
+  ->
+IP / Connectivity
+  ->
+Route
+  ->
+NSG
+  ->
+Destination
+  ->
+Application
+  ->
+Health
+
+## Networking Architecture Mental Model
+
+VNet
+  |
+  +-- Subnet
+        |
+        +-- NIC
+              |
+              +-- VM
+
+Supporting controls:
+
+Route -> traffic path
+NSG -> traffic filtering
+DNS -> name resolution
+
+Connectivity:
+
+VNet Peering -> private VNet-to-VNet connectivity
+Private Endpoint -> private Azure service connectivity
+
+Application delivery:
+
+Load Balancer -> Layer 4
+Application Gateway -> Layer 7 + health probing
+
+## Networking Q11-Q20 Status
+
+Theory brainstorming: COMPLETE
+Formal questions: COMPLETE
+Scenario reasoning: COMPLETE
+Troubleshooting reasoning: COMPLETE
+
+Formal Q11-Q20 average: 9.65 / 10
+
+Primary reinforcement lesson:
+
+Do not troubleshoot a lower layer after evidence has already proven that layer is working.

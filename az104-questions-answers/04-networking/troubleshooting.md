@@ -356,3 +356,167 @@ Networking Q1-Q10 troubleshooting coverage: COMPLETE
 Next:
 
 Networking weak-area reinforcement and retesting.
+
+## September 18, 2026 - Networking Q11-Q20 Troubleshooting
+
+### Q11 - Same VNet Traffic
+
+If resources in different subnets cannot communicate:
+
+1. Verify source and destination IPs.
+2. Check routing.
+3. Check applicable NSGs.
+4. Check destination availability.
+
+### Q12 - VNet Peering
+
+If communication between peered VNets fails:
+
+1. Verify peering exists.
+2. Verify address spaces do not overlap.
+3. Verify routing.
+4. Verify applicable NSGs.
+5. Verify destination availability.
+
+### Q13 - NSG Investigation
+
+Check all applicable NSGs.
+
+A deny on an applicable subnet or NIC NSG can block traffic even if another applicable NSG allows it.
+
+### Q14 - Routing
+
+VNet connectivity does not prove that the required route is correct.
+
+Investigate:
+
+- Destination prefix
+- Effective routes
+- Next hop
+- Custom route tables
+- Network appliance path
+
+### Q15 - Network Appliance
+
+A route pointing to a network appliance does not guarantee delivery.
+
+Verify that the appliance is:
+
+- Available
+- Reachable
+- Configured to receive the traffic
+- Able to forward the traffic
+
+### Q16 - Service Endpoint vs Private Endpoint
+
+When comparing the two models, identify whether the scenario requires private IP-based access to the Azure service.
+
+Private Endpoint provides private connectivity through a private IP.
+
+### Q17 - Private DNS
+
+If private IP connectivity works but the service hostname fails:
+
+1. Check DNS resolution.
+2. Verify Private DNS configuration.
+3. Verify VNet linkage.
+4. Verify hostname resolves to the expected Private Endpoint private IP.
+
+### Q18 - Application Gateway
+
+If routing must use URL paths:
+
+Application Gateway
+  ->
+Layer 7
+  ->
+HTTP/HTTPS
+  ->
+Path-based routing
+
+### Q19 - Health Probe
+
+If Application Gateway reports a backend as Unhealthy:
+
+1. Verify probe protocol.
+2. Verify probe port.
+3. Verify probe path.
+4. Verify backend service is running.
+5. Verify expected response.
+
+Example:
+
+Application = HTTPS 8443
+Probe = HTTPS 443
+
+Potential failure:
+
+Probe checks a port where the application is not listening.
+
+### Q20 - HTTP 403
+
+If the client receives HTTP 403 after network connectivity is proven:
+
+Investigate:
+
+1. Requesting identity
+2. Authentication context
+3. Effective authorization
+4. Role
+5. Scope
+6. Applicable access conditions
+7. Application behavior
+
+Key lesson:
+
+HTTP 403 is evidence that the request reached the service and access was denied.
+
+Do not automatically return to DNS, routing, or NSG troubleshooting when those layers have already been verified.
+
+## Networking Q11-Q20 Troubleshooting Status
+
+Troubleshooting coverage: COMPLETE
+
+Primary improvement:
+
+Evidence-based layer selection.
+
+Mental model:
+
+Authentication
+  ->
+Authorization
+  ->
+Scope
+  ->
+Network
+  ->
+Resource
+  ->
+Application
+  ->
+Health
+  ->
+Troubleshooting
+
+Networking model:
+
+Name
+  ->
+DNS
+  ->
+IP / Connectivity
+  ->
+Route
+  ->
+NSG
+  ->
+Destination
+  ->
+Application
+  ->
+Health
+
+Next:
+
+Networking Q21-Q30

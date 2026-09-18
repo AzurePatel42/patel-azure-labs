@@ -1014,3 +1014,142 @@ Troubleshooting
 Weak-Area Identification
     ->
 Retest
+
+---
+
+# September 18, 2026 - Networking Q11-Q20
+
+## Networking Q11-Q20
+
+Questions completed:
+
+10 / 10
+
+Session score:
+
+9.65 / 10
+
+Networking progress:
+
+20 / 30 questions complete
+
+### Q11-Q20 Session Scores
+
+- Q11 - 10/10
+- Q12 - 10/10
+- Q13 - 10/10
+- Q14 - 10/10
+- Q15 - 10/10
+- Q16 - 10/10
+- Q17 - 7.5/10
+- Q18 - 10/10
+- Q19 - 10/10
+- Q20 - 9/10
+
+### Primary Learning Themes
+
+- Same VNet private communication
+- VNet Peering
+- NSG layer troubleshooting
+- Routing and next-hop reasoning
+- Network appliance failure
+- Service Endpoint vs Private Endpoint
+- Private DNS
+- Load Balancer vs Application Gateway
+- Application Gateway path-based routing
+- Application Gateway health probes
+- HTTP 403 and authorization reasoning
+- Cross-domain troubleshooting
+
+### Strong Areas
+
+- VNet architecture
+- VNet Peering
+- NSG troubleshooting
+- Routing reasoning
+- Application Gateway
+- Health probe troubleshooting
+- Layer-by-layer troubleshooting
+
+### Reinforcement Area
+
+Private DNS and the discipline of moving upward through the troubleshooting model only after lower layers have been proven.
+
+### Key Corrections
+
+1. Subnets provide logical segmentation; they do not automatically provide security isolation.
+2. VNet Peering provides private connectivity but does not guarantee correct routing.
+3. A valid route does not guarantee that a next-hop network appliance is available.
+4. Private Endpoint scenarios require correct private name resolution when using service hostnames.
+5. Application Gateway provides Layer 7 routing and supports URL path-based routing.
+6. Application Gateway health depends on successful health probe communication with the backend service.
+7. HTTP 403 indicates that the request reached the service but access was denied.
+8. Network reachability and authorization are separate troubleshooting layers.
+9. Do not return to a lower troubleshooting layer after evidence has already proven it works.
+
+### Networking Mental Model
+
+VNet
+  ->
+Subnet
+  ->
+NIC
+  ->
+VM
+
+Supporting controls:
+
+Route -> traffic path
+NSG -> traffic filtering
+DNS -> name resolution
+
+Connectivity:
+
+VNet Peering -> private VNet-to-VNet connectivity
+Private Endpoint -> private Azure service connectivity
+
+Application delivery:
+
+Load Balancer -> Layer 4
+Application Gateway -> Layer 7 + health probing
+
+### Cross-Domain Reasoning Model
+
+Authentication
+  ->
+Authorization
+  ->
+Scope
+  ->
+Network
+  ->
+Resource
+  ->
+Application
+  ->
+Health
+  ->
+Troubleshooting
+
+### Networking Module Status
+
+Q1-Q10: COMPLETE
+Q11-Q20: COMPLETE
+
+Current position:
+
+20 / 30 questions complete
+
+Next target:
+
+Networking Q21-Q30
+
+Then:
+
+Scenario
+  ->
+Troubleshooting
+  ->
+Weak-Area Identification
+  ->
+Retest

@@ -299,3 +299,164 @@ Troubleshooting coverage: COMPLETE
 Next target:
 
 Networking weak-area reinforcement and retesting.
+
+## September 18, 2026 - Networking Q11-Q20
+
+### Questions Completed
+
+10 / 10
+
+### Session Score
+
+9.65 / 10
+
+### Q11 - Same VNet Communication
+
+User reasoning:
+
+VMs in different subnets of the same VNet can communicate using private IP addresses when there are no NSG or routing restrictions.
+
+Score:
+
+10/10
+
+Key refinement:
+
+Subnets provide logical segmentation. NSGs and routing can restrict communication.
+
+### Q12 - VNet Peering
+
+User reasoning:
+
+VNet Peering provides private connectivity between VNets using private IP addresses.
+
+Score:
+
+10/10
+
+### Q13 - NSG Investigation
+
+User reasoning:
+
+Investigate the applicable NSG on VM-02.
+
+Score:
+
+10/10
+
+### Q14 - Peering and Routing
+
+User reasoning:
+
+VNet Peering provides connectivity, but an incorrect route or next hop can prevent packet delivery.
+
+Score:
+
+10/10
+
+Key lesson:
+
+Connectivity does not guarantee correct routing.
+
+### Q15 - Network Appliance Failure
+
+User reasoning:
+
+A configured route does not guarantee successful traffic delivery if the receiving network appliance or next hop is unavailable.
+
+Score:
+
+10/10
+
+### Q16 - Service Endpoint vs Private Endpoint
+
+User reasoning:
+
+Service Endpoint uses the Azure service endpoint, while Private Endpoint provides private connectivity using a private IP address.
+
+Score:
+
+10/10
+
+### Q17 - Private DNS
+
+User reasoning:
+
+Investigate DNS when a Private Endpoint scenario requires the Azure service hostname to resolve to the Private Endpoint private IP.
+
+Score:
+
+7.5/10
+
+Correction:
+
+When private IP connectivity is already proven but hostname access fails, DNS should be investigated before returning to lower network layers.
+
+### Q18 - Application Gateway Path Routing
+
+User reasoning:
+
+Application Gateway is appropriate because the client request must be routed based on the URL path using HTTP/HTTPS.
+
+Score:
+
+10/10
+
+### Q19 - Application Gateway Health Probe
+
+User reasoning:
+
+The backend application listens on HTTPS 8443 while the health probe checks HTTPS 443. Investigate and correct the health probe configuration.
+
+Score:
+
+10/10
+
+### Q20 - HTTP 403
+
+User reasoning:
+
+Investigate the Application layer when the client receives HTTP 403 after DNS, routing, NSGs, VM, port, and health probe have been verified.
+
+Score:
+
+9/10
+
+Refinement:
+
+HTTP 403 means the request reached the service but access was denied. Investigate authorization and access context rather than assuming HTTP/HTTPS itself caused the problem.
+
+## Q11-Q20 Performance Summary
+
+Questions completed: 10 / 10
+
+Session score: 9.65 / 10
+
+Strong areas:
+
+- VNet architecture
+- VNet Peering
+- NSG troubleshooting
+- Routing reasoning
+- Service Endpoint vs Private Endpoint
+- Private DNS
+- Application Gateway
+- Health probe troubleshooting
+- Cross-domain troubleshooting
+
+Primary reinforcement lesson:
+
+Use evidence from the troubleshooting flow to identify the failing layer instead of returning to layers already proven to work.
+
+## Networking Progress
+
+Q1-Q10: COMPLETE
+Q11-Q20: COMPLETE
+
+Current domain position:
+
+Networking Q1-Q20 COMPLETE
+
+Next target:
+
+Networking Q21-Q30

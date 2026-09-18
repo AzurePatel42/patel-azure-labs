@@ -296,3 +296,86 @@ Application Gateway -> Layer 7 routing and health probing
 Next:
 
 Networking weak-area reinforcement and retesting.
+
+## September 18, 2026 - Networking Q11-Q20 Scenario Reasoning
+
+### Scenario 11 - Same VNet Communication
+
+Different subnets inside the same VNet can communicate using private IP addresses when NSGs and routing do not restrict the traffic.
+
+### Scenario 12 - VNet Peering
+
+Two VNets require private connectivity.
+
+Use VNet Peering so resources can communicate using private IP addresses.
+
+### Scenario 13 - NSG Blocking Traffic
+
+When VM-to-VM communication fails, investigate applicable NSGs on the source and destination network interfaces/subnets.
+
+### Scenario 14 - Peering Does Not Guarantee Routing Success
+
+VNet Peering provides connectivity between VNets, but traffic can still fail if the required route or next hop is incorrect.
+
+### Scenario 15 - Network Appliance Failure
+
+A route may exist while traffic fails because the configured network appliance is unavailable.
+
+### Scenario 16 - Service Endpoint vs Private Endpoint
+
+Service Endpoint and Private Endpoint provide different connectivity models.
+
+Private Endpoint provides a private IP address for the Azure service connection.
+
+### Scenario 17 - Private Endpoint DNS
+
+If an Azure service is accessed through a Private Endpoint, verify that the service hostname resolves to the Private Endpoint private IP.
+
+### Scenario 18 - Application Gateway Path Routing
+
+Application Gateway is appropriate when HTTP/HTTPS requests must be routed based on URL paths.
+
+Example:
+
+/api/* -> API backend
+/images/* -> Image backend
+
+### Scenario 19 - Application Gateway Health Probe
+
+If the backend application listens on HTTPS 8443 but the health probe checks HTTPS 443, the probe can fail and the backend can be reported as Unhealthy.
+
+### Scenario 20 - HTTP 403
+
+If networking and health checks are successful but the client receives HTTP 403, investigate authorization and application access behavior.
+
+## Cross-Scenario Lesson
+
+The Networking troubleshooting model should move from evidence to the next relevant layer:
+
+Name
+  ->
+DNS
+  ->
+IP / Connectivity
+  ->
+Route
+  ->
+NSG
+  ->
+Destination
+  ->
+Application
+  ->
+Health
+
+If a lower layer has already been proven to work, do not restart troubleshooting from that layer without new evidence.
+
+## Networking Q11-Q20 Scenario Status
+
+Scenario coverage: COMPLETE
+Troubleshooting reasoning: COMPLETE
+Cross-domain reasoning: COMPLETE
+
+Next:
+
+Networking Q21-Q30
