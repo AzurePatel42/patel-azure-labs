@@ -520,3 +520,96 @@ Health
 Next:
 
 Networking Q21-Q30
+
+---
+
+# Networking Q21-Q30 Troubleshooting Record
+
+## Problem 1 - Hostname fails, private IP succeeds
+
+Likely layer:
+DNS
+
+First investigation:
+Private DNS resolution, private DNS zone, and VNet linkage.
+
+## Problem 2 - VNet peering connected but private IP traffic fails
+
+Likely areas:
+Routing and NSG
+
+First investigation:
+Effective route / UDR followed by applicable NSG rules.
+
+## Problem 3 - NSG Allow exists but traffic is denied
+
+Likely cause:
+Higher-priority Deny rule
+
+First investigation:
+Compare numerical priorities.
+
+## Problem 4 - Load Balancer reports backend Unhealthy
+
+Likely cause:
+Health probe failure
+
+First investigation:
+Probe protocol, port, and configuration.
+
+## Problem 5 - Application Gateway returns 404 for one URL path
+
+Likely causes:
+Incorrect routing or backend-generated 404
+
+First investigation:
+Listener, routing rule, URL path map, then identify response origin.
+
+## Problem 6 - Storage hostname fails while Private Endpoint IP works
+
+Likely layer:
+DNS
+
+First investigation:
+Private DNS resolution.
+
+## Problem 7 - Confusion between Private Endpoint and Service Endpoint
+
+Key distinction:
+Private Endpoint creates a private IP in the VNet. Service Endpoint does not.
+
+## Problem 8 - Unexpected Virtual Appliance next hop
+
+Likely cause:
+UDR / route table
+
+First investigation:
+Destination prefix and next-hop configuration.
+
+## Problem 9 - Private Endpoint healthy but hostname fails from another VNet
+
+Likely layer:
+DNS
+
+First investigation:
+Private DNS zone records and VNet linkage.
+
+## Problem 10 - HTTP 403 after network checks succeed
+
+Likely layer:
+Application
+
+First investigation:
+Authorization, access-control policy, and application-level permissions.
+
+## Networking Troubleshooting Rule
+
+Use evidence to eliminate lower layers before moving upward.
+
+Do not continue investigating DNS after name resolution has been proven.
+
+Do not continue investigating routing after effective routing has been proven correct.
+
+Do not continue investigating NSGs after the relevant security rule has been proven to allow the traffic.
+
+Use the observed failure to select the next layer.

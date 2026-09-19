@@ -379,3 +379,77 @@ Cross-domain reasoning: COMPLETE
 Next:
 
 Networking Q21-Q30
+
+---
+
+# Networking Q21-Q30 Scenario Record
+
+## Scenario 1 - Private hostname failure
+
+Hostname access fails while private IP access works.
+
+Expected reasoning:
+Investigate Private DNS first.
+
+## Scenario 2 - Peering connected but traffic fails
+
+VNet peering is Connected but VNet-to-VNet traffic fails.
+
+Expected reasoning:
+Check effective routing / UDR and NSG controls.
+
+## Scenario 3 - NSG priority conflict
+
+Priority 100 Deny conflicts with Priority 200 Allow.
+
+Expected reasoning:
+Priority 100 wins because lower numerical priority is evaluated first.
+
+## Scenario 4 - Load Balancer unhealthy backend
+
+VM works directly but Load Balancer marks it unhealthy.
+
+Expected reasoning:
+Investigate the health probe.
+
+## Scenario 5 - Application Gateway 404
+
+Gateway is reachable and backend is healthy, but a specific URL path returns 404.
+
+Expected reasoning:
+Check listener, routing rule, URL path map, and whether the backend or gateway generated the 404.
+
+## Scenario 6 - Storage Private Endpoint hostname failure
+
+Private Endpoint IP works but Storage hostname fails.
+
+Expected reasoning:
+Investigate Private DNS.
+
+## Scenario 7 - Private Endpoint versus Service Endpoint
+
+An administrator must choose between Private Endpoint and Service Endpoint.
+
+Expected reasoning:
+Private Endpoint provides a private IP in the VNet. Service Endpoint does not create a private IP for the service.
+
+## Scenario 8 - Virtual Appliance next hop
+
+Connectivity testing reports Virtual Appliance as the next hop.
+
+Expected reasoning:
+Investigate route table / UDR configuration.
+
+## Scenario 9 - Private Endpoint across peered VNets
+
+Network connectivity works but the Storage hostname does not.
+
+Expected reasoning:
+Investigate Private DNS zone and VNet linkage.
+
+## Scenario 10 - HTTP 403 after network verification
+
+All network and health checks succeed but the application returns 403.
+
+Expected reasoning:
+Investigate application authorization / access-control policy.

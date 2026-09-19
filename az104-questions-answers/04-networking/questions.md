@@ -460,3 +460,181 @@ Networking Q1-Q20 COMPLETE
 Next target:
 
 Networking Q21-Q30
+
+---
+
+# Formal Assessment - Networking Q21-Q30
+
+## Q21
+
+Question:
+A VM can reach an Azure Storage Private Endpoint by private IP, but hostname access fails.
+
+Answer:
+C. Private DNS resolution and Private DNS zone/VNet linkage
+
+Score:
+10/10
+
+Key lesson:
+When private IP connectivity works but hostname connectivity fails, investigate DNS first.
+
+## Q22
+
+Question:
+A VM in VNet-A must reach a VM in VNet-B. Peering is Connected, but private IP connectivity fails.
+
+Correct answers:
+B. Route / UDR configuration
+C. Destination VM's NSG
+
+User answer:
+B
+
+Score:
+5/10
+
+Correction:
+Routing / UDR and NSG are both independent controls that can prevent successful connectivity after peering is established.
+
+Key lesson:
+Connected peering does not prove that routing and security controls permit the traffic.
+
+## Q23
+
+Question:
+NSG Priority 100 Deny conflicts with Priority 200 Allow for TCP 443.
+
+Answer:
+B. Priority 100 Deny
+
+Score:
+10/10
+
+Key lesson:
+Lower numerical priority is evaluated first.
+
+## Q24
+
+Question:
+Load Balancer backend VM is running and reachable directly, but Load Balancer marks it Unhealthy.
+
+Answer:
+B. Load Balancer health probe configuration
+
+Score:
+10/10
+
+Key lesson:
+VM availability and Load Balancer backend health are different checks.
+
+## Q25
+
+Question:
+Application Gateway receives /api/orders but returns HTTP 404.
+
+Answer:
+B. Application Gateway listener/routing rule or URL path map
+
+Score:
+10/10
+
+Key lesson:
+For a URL-specific failure, investigate Application Gateway routing and path mapping while also verifying whether the backend generated the 404.
+
+## Q26
+
+Question:
+Storage Private Endpoint IP works but Storage hostname access fails.
+
+Answer:
+C. Private DNS zone and VNet link
+
+Score:
+10/10
+
+Key lesson:
+Hostname resolution must point the service name to the Private Endpoint private IP.
+
+## Q27
+
+Question:
+Which statement correctly distinguishes Private Endpoint and Service Endpoint?
+
+Answer:
+B. A Private Endpoint provides a private IP in the VNet; a Service Endpoint does not create a private IP for the Storage service.
+
+Score:
+10/10
+
+Key lesson:
+Private Endpoint creates private connectivity through a private IP. Service Endpoint does not create a private IP for the service.
+
+## Q28
+
+Question:
+A connectivity test reports Next hop type = Virtual Appliance.
+
+Answer:
+B. User-defined route (UDR) / route table associated with the subnet
+
+Score:
+10/10
+
+Key lesson:
+An unexpected Virtual Appliance next hop points directly toward route-table / UDR investigation.
+
+## Q29
+
+Question:
+A Storage Private Endpoint is healthy and VNet peering works, but the Storage hostname fails.
+
+Answer:
+B. Private DNS resolution and Private DNS zone/VNet linkage
+
+Score:
+10/10
+
+Key lesson:
+A healthy Private Endpoint and working network path do not guarantee correct hostname resolution.
+
+## Q30
+
+Question:
+DNS, Application Gateway, backend health, NSG, routing, and VM state are all verified, but the application returns HTTP 403.
+
+Answer:
+C. Application authorization / access-control policy
+
+Score:
+10/10
+
+Key lesson:
+After network-path evidence is established, investigate application authorization and access control.
+
+---
+
+# Networking Q21-Q30 Formal Assessment Summary
+
+Questions completed:
+10/10
+
+Session score:
+95%
+
+Brainstorming score:
+95.5%
+
+Formal score:
+95%
+
+Primary weakness:
+Q22 multi-answer troubleshooting
+
+Secondary reinforcement areas:
+- Application Gateway URL/path routing
+- Private Endpoint versus Service Endpoint
+- Multi-layer networking troubleshooting
+
+Assessment status:
+COMPLETE

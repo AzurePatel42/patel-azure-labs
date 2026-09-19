@@ -376,3 +376,141 @@ Formal Q11-Q20 average: 9.65 / 10
 Primary reinforcement lesson:
 
 Do not troubleshoot a lower layer after evidence has already proven that layer is working.
+
+---
+
+# Networking Q21-Q30 Brainstorming Record
+
+## Q21 - Hostname works poorly while private IP works
+
+Reasoning:
+Investigate DNS first. The application uses the backend hostname, while direct private-IP connectivity works. Investigate Private DNS resolution.
+
+Score:
+10/10
+
+## Q22 - Peering connected but VNet-to-VNet private IP connection fails
+
+Reasoning:
+Investigate routing / UDR configuration and NSG rules. Connected peering establishes the peering relationship but does not prove the packet is allowed through the route and security controls.
+
+Score:
+9.5/10
+
+## Q23 - Conflicting NSG rules
+
+Reasoning:
+The lower numerical priority is evaluated first. Priority 100 Deny takes effect before priority 200 Allow.
+
+Score:
+10/10
+
+## Q24 - Load Balancer backend reported unhealthy
+
+Reasoning:
+Investigate the Load Balancer health probe, including protocol, port, and probe configuration.
+
+Score:
+10/10
+
+## Q25 - Application Gateway returns HTTP 404 for a specific URL path
+
+Reasoning:
+Investigate Application Gateway listener, routing rule, and URL path map. A URL-specific failure can indicate incorrect path-based routing. Also verify whether the 404 originated from the gateway or backend application.
+
+Score:
+8.5/10
+
+## Q26 - Private IP works but Storage hostname fails
+
+Reasoning:
+Investigate Private DNS because the private network path has already been demonstrated to work.
+
+Score:
+10/10
+
+## Q27 - Private Endpoint versus Service Endpoint
+
+Reasoning:
+Private Endpoint provides a private IP in the VNet. Service Endpoint does not create a private IP for the Storage service. Service Endpoint traffic does not imply public internet traversal.
+
+Score:
+8.5/10
+
+## Q28 - Connectivity test shows unexpected Virtual Appliance next hop
+
+Reasoning:
+Investigate the subnet route table and user-defined route. Verify the destination prefix and next-hop configuration.
+
+Score:
+10/10
+
+## Q29 - Storage Private Endpoint exists but hostname access fails across peered VNets
+
+Reasoning:
+Investigate Private DNS resolution, the Private DNS zone, and VNet linkage.
+
+Score:
+10/10
+
+## Q30 - HTTP 403 after DNS, routing, NSG, gateway, and health are verified
+
+Reasoning:
+Investigate the application layer, especially authorization and access-control policy. HTTP 403 indicates that the request reached the application path but access was denied.
+
+Score:
+9.5/10
+
+## Networking Q21-Q30 Brainstorming Summary
+
+Session average:
+95.5%
+
+Strong areas:
+- DNS and Private DNS troubleshooting
+- NSG priority evaluation
+- Load Balancer health probes
+- UDR / route troubleshooting
+- Evidence-based layer selection
+- Private Endpoint reasoning
+
+Areas to reinforce:
+- Application Gateway URL path routing
+- Private Endpoint versus Service Endpoint distinction
+- Multi-answer networking troubleshooting
+
+Core reasoning model:
+
+Authentication
+    ->
+Authorization
+    ->
+Scope
+    ->
+Network
+    ->
+Resource
+    ->
+Application
+    ->
+Health
+    ->
+Troubleshooting
+
+Layer model:
+
+Name
+    ->
+DNS
+    ->
+IP / Connectivity
+    ->
+Route
+    ->
+NSG
+    ->
+Destination
+    ->
+Application
+    ->
+Health
