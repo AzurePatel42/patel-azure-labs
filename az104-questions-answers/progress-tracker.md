@@ -1153,3 +1153,319 @@ Troubleshooting
 Weak-Area Identification
   ->
 Retest
+---
+
+# AZ-104 Monitoring Module - September 2026
+
+## Monitoring Foundation
+
+Status:
+
+COMPLETE
+
+Core concepts covered:
+
+- Azure Monitor
+- Metrics
+- Logs
+- Log Analytics
+- KQL
+- Alert Rules
+- Action Groups
+- Workbooks
+- Application Insights
+- Application dependency monitoring
+- Application Gateway backend health
+- Evidence-driven troubleshooting
+
+---
+
+## Monitoring Mental Model
+
+Azure Resource
+      |
+      v
+Metrics / Logs
+      |
+      v
+Azure Monitor
+      |
+      +---- Metrics
+      |
+      +---- Log Analytics
+      |
+      +---- Alerts
+      |
+      +---- Action Groups
+      |
+      +---- Workbooks
+      |
+      +---- Application Insights
+
+---
+
+## Monitoring Troubleshooting Model
+
+Resource
+   |
+   v
+Metrics
+   |
+   v
+Logs
+   |
+   v
+Query / Analysis
+   |
+   v
+Alert
+   |
+   v
+Action Group
+   |
+   v
+Response
+
+---
+
+## Monitoring Q1-Q10
+
+Questions completed:
+
+10 / 10
+
+Score:
+
+100%
+
+Status:
+
+FOUNDATION COMPLETE
+
+---
+
+## Monitoring Q11-Q20
+
+Questions completed:
+
+10 / 10
+
+Fully correct:
+
+9 / 10
+
+Partial:
+
+1 / 10
+
+Score:
+
+90%
+
+Status:
+
+INTERMEDIATE COMPLETE
+
+---
+
+## Monitoring Weak Area
+
+Identified weakness:
+
+Application Gateway / network ingress troubleshooting.
+
+Original reasoning issue:
+
+Jumping directly to the health probe when backend health was unhealthy.
+
+Corrected reasoning:
+
+Start with the network / ingress layer and then investigate:
+
+- Application Gateway
+- Backend health
+- Health probe
+- Backend port
+- Backend protocol
+- NSG
+- Firewall
+- Connectivity
+
+Status:
+
+REINFORCED
+
+---
+
+## Monitoring Strengths
+
+Strong areas demonstrated:
+
+- Metrics vs Logs
+- Azure Monitor
+- Log Analytics
+- KQL investigation
+- Alert conditions
+- Alert evaluation duration
+- Action Groups
+- Workbooks
+- Application Insights
+- Dependency troubleshooting
+- Timestamp correlation
+- Health probe reasoning
+- Evidence-driven troubleshooting
+
+---
+
+## Monitoring Documentation
+
+Completed:
+
+- notes.md
+- questions.md
+- scenarios.md
+- troubleshooting.md
+- labs.md
+
+Status:
+
+DOCUMENTATION COMPLETE
+
+---
+
+## Monitoring Hands-On Labs
+
+Planned labs:
+
+- Azure Monitor Metrics
+- Log Analytics and KQL
+- Azure Monitor Alert
+- Action Group Notification
+- Azure Workbook
+- Application Insights
+- Monitoring Incident Correlation
+- Application Gateway Backend Health
+- Monitoring Weak-Area Retest
+
+Status:
+
+PENDING EXECUTION
+
+---
+
+## AZ-104 Core Module Progress
+
+Identity & Governance:
+
+30 / 30 COMPLETE
+
+Storage:
+
+30 / 30 COMPLETE
+
+Compute:
+
+30 / 30 COMPLETE
+
+Networking:
+
+30 / 30 COMPLETE
+
+Monitoring:
+
+20 / 20 COMPLETE
+
+Next:
+
+Monitoring hands-on labs
+
+Then:
+
+Cross-Domain Scenarios
+
+Then:
+
+Interview Mode
+
+Then:
+
+Mock Exams
+
+---
+
+## Current AZ-104 Position
+
+Completed core domains:
+
+1. Identity & Governance
+2. Storage
+3. Compute
+4. Networking
+5. Monitoring theory and assessment
+
+Current focus:
+
+Monitoring hands-on labs
+
+Next major phase:
+
+Cross-Domain Scenarios
+
+Core troubleshooting model:
+
+Authentication
+      |
+      v
+Authorization
+      |
+      v
+Scope
+      |
+      v
+Network
+      |
+      v
+Resource
+      |
+      v
+Application
+      |
+      v
+Health
+      |
+      v
+Troubleshooting
+
+---
+
+# Monitoring Module Status
+
+Theory:
+
+COMPLETE
+
+Q1-Q10:
+
+100%
+
+Q11-Q20:
+
+90%
+
+Weak-area reinforcement:
+
+COMPLETE
+
+Documentation:
+
+COMPLETE
+
+Hands-on labs:
+
+PENDING EXECUTION
+
+GitHub commit:
+
+PENDING
+
+---
