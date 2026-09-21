@@ -814,3 +814,129 @@ GitHub documentation:
 NEXT
 
 ---
+
+# Monitoring Hands-On Lab
+
+## Lab Objective
+
+Validate Azure Monitor monitoring end-to-end using the storage account `staz104az01` and Log Analytics workspace `lawaz104mon01`.
+
+## Resources
+
+- Storage Account: `staz104az01`
+- Log Analytics Workspace: `lawaz104mon01`
+- Diagnostic Setting: `diag-staz104az01`
+- Alert Rule: `alert-staz104az01-transactions`
+
+## Diagnostic Settings
+
+The storage account diagnostic setting sends:
+
+- Capacity
+- Transaction
+
+data to the `lawaz104mon01` Log Analytics workspace.
+
+Mental model:
+
+staz104az01
+    |
+    | Diagnostic setting
+    v
+lawaz104mon01
+    |
+    v
+Log Analytics / AzureMetrics
+
+## Metric Investigation
+
+The Storage Account Metrics blade was used to inspect the `Transactions` metric.
+
+The displayed 24-hour metric chart showed:
+
+- Metric: Transactions
+- Aggregation: Sum
+- Total displayed: 14
+
+## Alert Investigation
+
+Alert rule:
+
+`alert-staz104az01-transactions`
+
+Configuration observed:
+
+- Signal: Transactions
+- Condition: Transactions > 10
+- Severity: Warning
+- Status: Enabled
+- Time series monitored: 1
+- Action Group: None configured
+
+The Alerts blade showed zero alert instances during the investigation.
+
+Important lesson:
+
+A metric value above a configured threshold does not by itself prove that an alert instance fired. Alert history/state must be verified separately.
+
+## KQL Validation
+
+Query used:
+
+AzureMetrics
+| where Resource == "STAZ104AZ01"
+| summarize Records = count(), TotalTransactions = sum(Total) by MetricName
+| order by MetricName asc
+
+Observed Transactions result:
+
+- MetricName: Transactions
+- Records: 9
+- TotalTransactions: 14
+
+The Log Analytics result matched the 14 transactions observed in the Storage Account Metrics chart.
+
+## Monitoring Evidence Chain
+
+staz104az01
+    |
+    | Diagnostic setting
+    | Capacity + Transaction
+    v
+lawaz104mon01
+    |
+    v
+AzureMetrics
+    |
+    v
+KQL investigation
+    |
+    v
+Transactions = 14
+    |
+    v
+Alert Rule: Transactions > 10
+    |
+    +---- Enabled
+    +---- Warning
+    +---- No Action Group
+    +---- No alert instances observed
+
+## Key AZ-104 Lessons
+
+- Metrics show what is happening.
+- Logs show what happened.
+- KQL is used for investigation and analysis.
+- Alert Rules evaluate conditions.
+- Alert instances provide evidence that an alert actually fired.
+- Action Groups define the notification or response after an alert fires.
+- Diagnostic settings determine what resource data is sent to monitoring destinations.
+- Metric charts and Log Analytics can be correlated to validate monitoring data.
+
+## Hands-On Lab Status
+
+COMPLETE
+
+## GitHub Documentation Status
+
+READY FOR COMMIT
