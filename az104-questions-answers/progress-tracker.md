@@ -1469,3 +1469,142 @@ GitHub commit:
 PENDING
 
 ---
+---
+
+# AZ-104 Cross-Domain Scenarios - September 2026
+
+## Cross-Domain Theory Status
+
+Cross-Domain Round 1:
+
+COMPLETE
+
+Cross-Domain Round 2:
+
+10 / 10 COMPLETE
+
+Round 2 Score:
+
+96.5%
+
+---
+
+## Cross-Domain Documentation
+
+Completed:
+
+- notes.md
+- questions.md
+- architecture-scenarios.md
+- troubleshooting-scenarios.md
+- README.md
+
+Documentation status:
+
+COMPLETE
+
+---
+
+## Cross-Domain Skills Reinforced
+
+- Authentication vs Authorization
+- Management plane vs Data plane
+- RBAC role vs scope
+- Managed Identity reasoning
+- Storage Blob data-plane permissions
+- Storage Firewall vs NSG
+- Key Vault data-plane permissions
+- Key Vault firewall diagnostics
+- Application Gateway backend health
+- Health probe protocol and port
+- Guest OS authorization vs Azure RBAC
+- Resource policy vs RBAC
+- Evidence-first troubleshooting
+
+---
+
+## AZ-104 Overall Module Status
+
+Identity & Governance:
+
+30 / 30 COMPLETE
+
+Storage:
+
+30 / 30 COMPLETE
+
+Compute:
+
+30 / 30 COMPLETE
+
+Networking:
+
+30 / 30 COMPLETE
+
+Monitoring:
+
+20 / 20 THEORY AND ASSESSMENT COMPLETE
+
+Monitoring hands-on labs:
+
+PENDING EXECUTION
+
+Cross-Domain:
+
+THEORY COMPLETE
+
+Cross-Domain Round 2:
+
+10 / 10 COMPLETE
+
+---
+
+## Current Learning Status
+
+AZ-104 theory and question-based assessment:
+
+COMPLETE THROUGH CROSS-DOMAIN
+
+Remaining:
+
+HANDS-ON AZ-104 + IaC LABS
+
+Monitoring hands-on lab remains pending and is NOT marked complete.
+
+---
+
+## Next Phase
+
+Hands-on AZ-104 labs
+
+ARM / Bicep / Terraform reinforcement
+
+Continue portfolio infrastructure work
+
+---
+
+## Roadmap After September 30
+
+October daytime:
+
+PPST migrations
+
+CI/CD
+
+GitHub Actions
+
+October nighttime:
+
+Splunk learning
+
+Portfolio:
+
+LinkedIn
+
+GitHub
+
+Resume
+
+No additional roadmap items added.
+
+---
